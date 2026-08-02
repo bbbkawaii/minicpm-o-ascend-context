@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.venv/
+artifacts/
+**/reports/runs/
+*.log
+*.mp4
+*.mov
+*.wav
+*.safetensors
+*.bin
+dist/
+node_modules/
