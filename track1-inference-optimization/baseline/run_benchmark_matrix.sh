@@ -6,11 +6,15 @@
 #   text+audio : concurrency 1, 2, 4    ;  30 measured +  3 warm-up each
 #
 # Behavior:
-#   * Each cell writes to optimization/runs/<matrix>/<cell>/ with command,
-#     benchmark JSON, resource CSV+summary, and a server log tail.
+#   * Each cell writes to optimization/runs/<matrix>/<cell>/ with a command
+#     file, benchmark JSON, resource CSV+summary, and a server log tail.
 #   * A failing cell keeps its evidence but does not auto-promote concurrency.
-#   * Runs 3 rounds; steady-state stats exclude a cold-start first round.
+#   * Round 0 is the cold-start round (results excluded from the steady-state
+#     summary); rounds 1..ROUNDS are steady state.
 #   * DRY_RUN=1 prints every planned command without contacting the server.
+#
+# The benchmark command is assembled as a bash array (no `eval`), so a model
+# name or base URL containing spaces/shell metacharacters is passed safely.
 
 set -euo pipefail
 
@@ -28,7 +32,6 @@ log() { printf '[%s] %s\n' "$(date -u +%H:%M:%S)" "$*"; }
 plan() { printf '%s\n' "$*" >> "$RUNS_DIR/.plan.txt"; }
 
 check_server() {
-  # shellcheck disable=SC2016
   local body
   body=$(curl -s -m 10 "$BASE_URL/models" 2>/dev/null || true)
   if ! printf '%s' "$body" | grep -q '"object"'; then
@@ -43,22 +46,32 @@ run_matrix() {
   local concs=("$@")
 
   for conc in "${concs[@]}"; do
-    for round in $(seq 1 "$ROUNDS"); do
+    # Round 0 = cold start (excluded from steady-state summary).
+    for round in $(seq 0 "$ROUNDS"); do
       local cell="$RUNS_DIR/$label/conc$conc/round$round"
       mkdir -p "$cell"
-      local cmd
-      cmd="python3 $ROOT_DIR/baseline/benchmark_audio.py"
-      [[ "$label" == "text" ]] && cmd="python3 $ROOT_DIR/baseline/benchmark_text.py"
-      cmd="$cmd --base-url $BASE_URL --model $MODEL --requests $requests --concurrency $conc --warmup-requests $warmup --output $cell/benchmark.json"
+
+      local benchmark_bin
+      if [[ "$label" == "text" ]]; then
+        benchmark_bin="$ROOT_DIR/baseline/benchmark_text.py"
+      else
+        benchmark_bin="$ROOT_DIR/baseline/benchmark_audio.py"
+      fi
+
+      # Build the command as an array; no string concatenation / eval.
+      local cmd=("python3" "$benchmark_bin")
+      cmd+=(--base-url "$BASE_URL" --model "$MODEL")
+      cmd+=(--requests "$requests" --concurrency "$conc" --warmup-requests "$warmup")
+      cmd+=(--output "$cell/benchmark.json")
+
+      # Persist the exact command for reproducibility.
+      printf '%q ' "${cmd[@]}" > "$cell/command.txt"
+      printf '\n' >> "$cell/command.txt"
 
       printf 'RUN label=%s conc=%s round=%s\n' "$label" "$conc" "$round"
-      printf '  %s\n' "$cmd"
-      plan "$cmd"
-
-      # Record the resource + summary steps in the plan too, so DRY_RUN
-      # prints the complete intended pipeline.
+      printf '  %s\n' "${cmd[*]}"
+      plan "${cmd[*]}"
       plan "  collect_resources.sh --outdir $cell"
-      plan "  summarize_resources.py $cell/resources.csv --output $cell/resources-summary.json"
 
       if [[ "$DRY_RUN" == "1" ]]; then
         continue
@@ -67,24 +80,24 @@ run_matrix() {
       check_server || { echo "server-check-failed" > "$cell/STATUS"; continue; }
 
       # Start resource collector.
-      local pidfile="$cell/collect_resources.pid"
+      local collector_pid=""
       if command -v npu-smi >/dev/null 2>&1; then
         "$ROOT_DIR/baseline/collect_resources.sh" --interval 1 --outdir "$cell" &
-        local collector_pid=$!
+        collector_pid=$!
       else
         log "WARN: npu-smi unavailable; no resource collection for $cell"
       fi
 
-      # Run benchmark, capturing command + exit.
+      # Run benchmark, capturing exit code.
       set +e
-      eval "$cmd" > "$cell/stdout.txt" 2> "$cell/stderr.txt"
+      "${cmd[@]}" > "$cell/stdout.txt" 2> "$cell/stderr.txt"
       local rc=$?
       set -e
       printf 'rc=%d\n' "$rc" > "$cell/STATUS"
       log "  finished rc=$rc"
 
       # Stop collector.
-      if [[ -n "${collector_pid:-}" ]]; then
+      if [[ -n "$collector_pid" ]]; then
         kill -TERM "$collector_pid" 2>/dev/null || true
         wait "$collector_pid" 2>/dev/null || true
       fi
@@ -100,7 +113,7 @@ run_matrix() {
       fi
 
       # A failing cell stops this label's higher concurrency (keep evidence).
-      if [[ $rc -ne 0 ]]; then
+      if [[ $rc -ne 0 && "$round" -gt 0 ]]; then
         log "  cell failed rc=$rc; skipping higher concurrency for $label"
         return
       fi
