@@ -10,8 +10,8 @@ from baseline.benchmark_audio import (
     extract_audio_base64,
     inspect_wav_chunk,
     run_request,
-    summarize_audio,
 )
+from baseline.metrics import distribution
 
 
 def make_wav_base64(frame_count=240):
@@ -22,6 +22,36 @@ def make_wav_base64(frame_count=240):
         wav_file.setframerate(24_000)
         wav_file.writeframes(b"\x00\x00" * frame_count)
     return base64.b64encode(wav_buffer.getvalue()).decode()
+
+
+def make_audio_metric(
+    request_id,
+    ttft=0.1,
+    ttfp=0.4,
+    e2e=1.0,
+    audio_duration=0.5,
+    audio_chunks=2,
+    pcm_bytes=480,
+    sample_rate=24_000,
+    audio_window=0.3,
+    icl=None,
+    first_pcm=480,
+    safe=1.0,
+):
+    return AudioRequestMetric(
+        request_id=request_id,
+        ttft_seconds=ttft,
+        ttfp_seconds=ttfp,
+        e2e_seconds=e2e,
+        audio_duration_seconds=audio_duration,
+        audio_chunks=audio_chunks,
+        pcm_bytes=pcm_bytes,
+        sample_rate_hz=sample_rate,
+        audio_window_seconds=audio_window,
+        icl_seconds=icl if icl is not None else [],
+        first_audio_pcm_bytes=first_pcm,
+        playback_safe_ratio=safe,
+    )
 
 
 class AudioEventParsingTests(unittest.TestCase):
@@ -49,19 +79,12 @@ class AudioEventParsingTests(unittest.TestCase):
         self.assertAlmostEqual(info.duration_seconds, 0.01)
 
 
-class AudioSummaryTests(unittest.TestCase):
-    def test_reports_ttfp_and_explicit_rtf_boundaries(self):
-        metrics = [
-            AudioRequestMetric(0, 0.1, 0.4, 1.0, 0.5, 2, 24_000, 24_000, 0.3),
-            AudioRequestMetric(1, 0.3, 0.8, 2.0, 1.0, 4, 48_000, 24_000, 0.9),
-        ]
+class AudioMetricPropertiesTests(unittest.TestCase):
+    def test_rtf_boundaries_are_explicit(self):
+        metric = make_audio_metric(0, e2e=1.0, audio_duration=0.5, audio_window=0.3)
 
-        summary = summarize_audio(metrics, wall_seconds=2.0)
-
-        self.assertEqual(summary["request_throughput"], 1.0)
-        self.assertEqual(summary["ttfp_seconds"]["p50"], 0.6)
-        self.assertEqual(summary["rtf_e2e"]["p50"], 2.0)
-        self.assertEqual(summary["rtf_audio_window"]["p50"], 0.75)
+        self.assertEqual(metric.rtf_e2e, 2.0)
+        self.assertEqual(metric.rtf_audio_window, 0.6)
 
 
 class AudioRequestTests(unittest.TestCase):
@@ -88,9 +111,13 @@ class AudioRequestTests(unittest.TestCase):
             self.assertEqual(payload["modalities"], ["text", "audio"])
             return FakeResponse()
 
+        class FakeOpener:
+            def open(self, request, timeout=None):
+                return fake_urlopen(request, timeout)
+
         with patch(
-            "baseline.benchmark_audio.urllib.request.urlopen",
-            side_effect=fake_urlopen,
+            "baseline.benchmark_audio.urllib.request.build_opener",
+            return_value=FakeOpener(),
         ):
             metric = run_request(
                 7,
@@ -105,6 +132,58 @@ class AudioRequestTests(unittest.TestCase):
         self.assertEqual(metric.pcm_bytes, 960)
         self.assertAlmostEqual(metric.audio_duration_seconds, 0.02)
         self.assertEqual(metric.sample_rate_hz, 24_000)
+        self.assertEqual(metric.first_audio_pcm_bytes, 480)
+        self.assertAlmostEqual(metric.playback_safe_ratio, 1.0)
+
+    def test_icl_computed_from_chunk_arrivals(self):
+        # Two chunks 0.05s apart each of 0.01s decoded duration => ICL [0.05].
+        audio_chunk = make_wav_base64()
+        events = [
+            {"modality": "text", "choices": [{"delta": {"content": "ok"}}]},
+            {"modality": "audio", "choices": [{"delta": {"content": audio_chunk}}]},
+            {"modality": "audio", "choices": [{"delta": {"content": audio_chunk}}]},
+        ]
+        lines = [f"data: {json.dumps(event)}\n".encode() for event in events]
+        lines.append(b"data: [DONE]\n")
+
+        class FakeResponse:
+            def __enter__(self):
+                return iter(lines)
+
+            def __exit__(self, *_args):
+                return False
+
+        # Patch perf_counter to produce deterministic arrival times.
+        times = iter([1.0, 1.05, 1.10, 1.15])
+        real_perf_counter = __import__("time").perf_counter
+
+        def fake_perf_counter():
+            try:
+                return next(times)
+            except StopIteration:
+                return real_perf_counter()
+
+        def fake_urlopen(request, timeout):
+            return FakeResponse()
+
+        class FakeOpener:
+            def open(self, request, timeout=None):
+                return fake_urlopen(request, timeout)
+
+        with patch("baseline.benchmark_audio.time.perf_counter", side_effect=fake_perf_counter), patch(
+            "baseline.benchmark_audio.urllib.request.build_opener",
+            return_value=FakeOpener(),
+        ):
+            metric = run_request(
+                8,
+                "http://127.0.0.1:8099/v1",
+                "model",
+                "prompt",
+                2.0,
+            )
+
+        self.assertEqual(len(metric.icl_seconds), 1)
+        self.assertAlmostEqual(metric.icl_seconds[0], 0.05, places=2)
 
 
 if __name__ == "__main__":

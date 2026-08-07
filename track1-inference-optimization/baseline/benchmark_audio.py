@@ -1,5 +1,23 @@
 #!/usr/bin/env python3
-"""Measure MiniCPM-o text and audio streaming latency."""
+"""Measure MiniCPM-o text + streaming audio latency.
+
+Emits the shared v1 result schema.  Extends the text benchmark with audio
+metrics: TTFP (first audio packet), ICL (inter-chunk latency), audio playback
+continuity, and RTF (real-time factor) under two independent definitions.
+
+Metric definitions
+------------------
+* ttft_seconds          : request start to first non-empty text delta
+* ttfp_seconds          : request start to first decodable audio WAV delta
+* icl_seconds           : inter-chunk latency between consecutive audio deltas
+* e2e_seconds           : request start to stream completion
+* audio_duration_seconds: summed decoded audio duration of all chunks
+* audio_chunks          : number of decodable audio deltas
+* first_audio_pcm_bytes : PCM bytes of the first audio chunk
+* rtf_e2e               : E2E seconds / generated audio seconds
+* rtf_audio_window      : (first-to-last audio arrival window) / audio seconds
+* playback_safe_ratio   : fraction of arrivals where gap <= previous chunk audio
+"""
 
 from __future__ import annotations
 
@@ -8,16 +26,61 @@ import base64
 import concurrent.futures
 import io
 import json
-import statistics
+import os
+import sys
 import time
+import urllib.error
 import urllib.request
 import wave
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
-if __package__:
-    from .benchmark_text import extract_delta_text, percentile
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_IS_FLAT = os.path.exists(os.path.join(_SCRIPT_DIR, "metrics.py")) and not os.path.isdir(
+    os.path.join(_SCRIPT_DIR, "baseline")
+)
+if _IS_FLAT:
+    sys.path.insert(0, _SCRIPT_DIR)
 else:
-    from benchmark_text import extract_delta_text, percentile
+    sys.path.insert(0, os.path.dirname(_SCRIPT_DIR))
+
+if _IS_FLAT:
+    from benchmark_text import extract_delta_text  # type: ignore[import-not-found]  # noqa: E402
+    from metrics import (  # type: ignore[import-not-found]  # noqa: E402
+        RequestError,
+        build_metadata,
+        compute_itl,
+        render_summary,
+        summarize_error,
+        write_output,
+    )
+else:
+    from baseline.benchmark_text import extract_delta_text  # noqa: E402
+    from baseline.metrics import (  # noqa: E402
+        RequestError,
+        build_metadata,
+        compute_itl,
+        render_summary,
+        summarize_error,
+        write_output,
+    )
+
+METRIC_DEFINITIONS = {
+    "ttft_seconds": "request start to first non-empty text delta",
+    "ttfp_seconds": "request start to first decodable audio WAV delta",
+    "icl_seconds": "inter-chunk latency between consecutive audio deltas",
+    "e2e_seconds": "request start to stream completion",
+    "audio_duration_seconds": "summed decoded audio duration of all chunks",
+    "audio_chunks": "number of decodable audio deltas",
+    "first_audio_pcm_bytes": "PCM bytes of the first audio chunk",
+    "rtf_e2e": "E2E seconds divided by generated audio duration",
+    "rtf_audio_window": (
+        "first-to-last audio arrival window divided by generated audio duration"
+    ),
+    "playback_safe_ratio": (
+        "fraction of audio arrivals whose inter-chunk gap does not exceed "
+        "the previous chunk's decoded audio duration"
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -38,6 +101,9 @@ class AudioRequestMetric:
     pcm_bytes: int
     sample_rate_hz: int
     audio_window_seconds: float
+    icl_seconds: list[float]
+    first_audio_pcm_bytes: int
+    playback_safe_ratio: float
 
     @property
     def rtf_e2e(self) -> float:
@@ -83,52 +149,6 @@ def inspect_wav_chunk(audio_base64: str) -> WavChunkInfo:
     )
 
 
-def _distribution(values: list[float]) -> dict[str, float]:
-    return {
-        "mean": round(statistics.fmean(values), 6),
-        "p50": round(percentile(values, 0.50), 6),
-        "p95": round(percentile(values, 0.95), 6),
-    }
-
-
-def summarize_audio(
-    metrics: list[AudioRequestMetric], wall_seconds: float
-) -> dict:
-    if not metrics:
-        raise ValueError("audio summary requires at least one request metric")
-    results = []
-    for metric in metrics:
-        result = asdict(metric)
-        result["rtf_e2e"] = round(metric.rtf_e2e, 6)
-        result["rtf_audio_window"] = round(metric.rtf_audio_window, 6)
-        results.append(result)
-    return {
-        "metric_definitions": {
-            "ttft_seconds": "request start to first non-empty text delta",
-            "ttfp_seconds": "request start to first decodable audio WAV delta",
-            "e2e_seconds": "request start to stream completion",
-            "rtf_e2e": "E2E seconds divided by generated audio duration",
-            "rtf_audio_window": (
-                "first-to-last audio arrival window divided by generated audio duration"
-            ),
-        },
-        "requests": len(metrics),
-        "wall_seconds": round(wall_seconds, 6),
-        "request_throughput": round(len(metrics) / wall_seconds, 6),
-        "ttft_seconds": _distribution([metric.ttft_seconds for metric in metrics]),
-        "ttfp_seconds": _distribution([metric.ttfp_seconds for metric in metrics]),
-        "e2e_seconds": _distribution([metric.e2e_seconds for metric in metrics]),
-        "audio_duration_seconds": _distribution(
-            [metric.audio_duration_seconds for metric in metrics]
-        ),
-        "rtf_e2e": _distribution([metric.rtf_e2e for metric in metrics]),
-        "rtf_audio_window": _distribution(
-            [metric.rtf_audio_window for metric in metrics]
-        ),
-        "results": results,
-    }
-
-
 def run_request(
     request_id: int,
     base_url: str,
@@ -157,16 +177,18 @@ def run_request(
         method="POST",
     )
 
+    # Bypass environment http_proxy/https_proxy: the target is always the
+    # local inference service, and a user proxy would 502 the loopback call.
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
     started = time.perf_counter()
     first_text_at: float | None = None
     first_audio_at: float | None = None
     last_audio_at: float | None = None
-    audio_duration = 0.0
-    audio_chunks = 0
-    pcm_bytes = 0
+    audio_arrivals: list[tuple[float, WavChunkInfo]] = []
     sample_rate_hz: int | None = None
 
-    with urllib.request.urlopen(request, timeout=timeout) as response:
+    with opener.open(request, timeout=timeout) as response:
         for raw_line in response:
             line = raw_line.decode("utf-8").strip()
             if not line.startswith("data:"):
@@ -190,9 +212,7 @@ def run_request(
                 if first_audio_at is None:
                     first_audio_at = now
                 last_audio_at = now
-                audio_duration += chunk.duration_seconds
-                audio_chunks += 1
-                pcm_bytes += chunk.pcm_bytes
+                audio_arrivals.append((now, chunk))
                 continue
 
             if str(event.get("modality", "")).lower() != "audio":
@@ -205,8 +225,29 @@ def run_request(
         raise RuntimeError(f"request {request_id} completed without a text delta")
     if first_audio_at is None or last_audio_at is None or sample_rate_hz is None:
         raise RuntimeError(f"request {request_id} completed without an audio delta")
+
+    audio_duration = sum(chunk.duration_seconds for _, chunk in audio_arrivals)
     if audio_duration <= 0:
         raise RuntimeError(f"request {request_id} produced zero-duration audio")
+
+    pcm_bytes = sum(chunk.pcm_bytes for _, chunk in audio_arrivals)
+    first_pcm_bytes = audio_arrivals[0][1].pcm_bytes
+
+    # Inter-chunk latency on arrival times.
+    arrival_times = [ts for ts, _ in audio_arrivals]
+    icl = compute_itl(arrival_times)
+
+    # Playback safety: a chunk arrives on time if the gap since the previous
+    # chunk does not exceed the previous chunk's decoded audio duration.
+    safe_count = 0
+    comparisons = 0
+    for i in range(1, len(audio_arrivals)):
+        gap = arrival_times[i] - arrival_times[i - 1]
+        previous_duration = audio_arrivals[i - 1][1].duration_seconds
+        comparisons += 1
+        if gap <= previous_duration:
+            safe_count += 1
+    playback_safe_ratio = safe_count / comparisons if comparisons else 1.0
 
     return AudioRequestMetric(
         request_id=request_id,
@@ -214,11 +255,96 @@ def run_request(
         ttfp_seconds=first_audio_at - started,
         e2e_seconds=finished - started,
         audio_duration_seconds=audio_duration,
-        audio_chunks=audio_chunks,
+        audio_chunks=len(audio_arrivals),
         pcm_bytes=pcm_bytes,
         sample_rate_hz=sample_rate_hz,
         audio_window_seconds=max(last_audio_at - first_audio_at, 0.0),
+        icl_seconds=icl,
+        first_audio_pcm_bytes=first_pcm_bytes,
+        playback_safe_ratio=round(playback_safe_ratio, 6),
     )
+
+
+def execute_round(
+    *,
+    base_url: str,
+    model: str,
+    prompt: str,
+    timeout: float,
+    requests: int,
+    concurrency: int,
+    warmup_requests: int,
+    request_rate: float | None,
+) -> tuple[list[AudioRequestMetric], list[RequestError], float]:
+    errors: list[RequestError] = []
+
+    def guarded(request_id: int) -> AudioRequestMetric | None:
+        try:
+            return run_request(
+                request_id, base_url, model, prompt, timeout
+            )
+        except urllib.error.HTTPError as exc:
+            errors.append(
+                RequestError(
+                    request_id=request_id,
+                    kind="http_error",
+                    message=f"HTTP {exc.code}",
+                )
+            )
+            return None
+        except TimeoutError:
+            errors.append(
+                RequestError(
+                    request_id=request_id,
+                    kind="timeout",
+                    message="request timed out",
+                )
+            )
+            return None
+        except Exception as exc:  # noqa: BLE001
+            errors.append(
+                RequestError(
+                    request_id=request_id,
+                    kind="error",
+                    message=summarize_error(exc),
+                )
+            )
+            return None
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=concurrency
+    ) as executor:
+        warmup_futures = [
+            executor.submit(guarded, request_id)
+            for request_id in range(warmup_requests)
+        ]
+        for future in warmup_futures:
+            future.result()
+
+    wall_started = time.perf_counter()
+    metrics: list[AudioRequestMetric] = []
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=concurrency
+    ) as executor:
+        futures = [
+            executor.submit(guarded, request_id)
+            for request_id in range(requests)
+        ]
+        if request_rate is None:
+            for future in futures:
+                result = future.result()
+                if result is not None:
+                    metrics.append(result)
+        else:
+            interval = 1.0 / request_rate
+            for future in futures:
+                result = future.result()
+                if result is not None:
+                    metrics.append(result)
+                if request_rate > 0:
+                    time.sleep(interval)
+    wall_seconds = time.perf_counter() - wall_started
+    return metrics, errors, wall_seconds
 
 
 def main() -> int:
@@ -229,32 +355,62 @@ def main() -> int:
     parser.add_argument("--requests", type=int, default=5)
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--timeout", type=float, default=300)
+    parser.add_argument("--warmup-requests", type=int, default=0)
+    parser.add_argument("--request-rate", type=float, default=None)
     parser.add_argument("--output")
     args = parser.parse_args()
 
     if args.requests < 1 or args.concurrency < 1:
         parser.error("--requests and --concurrency must be positive")
 
-    wall_started = time.perf_counter()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=args.concurrency) as executor:
-        futures = [
-            executor.submit(
-                run_request,
-                request_id,
-                args.base_url,
-                args.model,
-                args.prompt,
-                args.timeout,
-            )
-            for request_id in range(args.requests)
-        ]
-        metrics = [future.result() for future in futures]
-    summary = summarize_audio(metrics, time.perf_counter() - wall_started)
-    rendered = json.dumps(summary, ensure_ascii=False, indent=2)
-    print(rendered)
-    if args.output:
-        with open(args.output, "w", encoding="utf-8") as output_file:
-            output_file.write(rendered + "\n")
+    metrics, errors, wall_seconds = execute_round(
+        base_url=args.base_url,
+        model=args.model,
+        prompt=args.prompt,
+        timeout=args.timeout,
+        requests=args.requests,
+        concurrency=args.concurrency,
+        warmup_requests=args.warmup_requests,
+        request_rate=args.request_rate,
+    )
+
+    metadata = build_metadata(
+        model=args.model,
+        base_url=args.base_url,
+        requests=args.requests,
+        concurrency=args.concurrency,
+        warmup_requests=args.warmup_requests,
+        prompt=args.prompt,
+    )
+
+    icl_values: list[float] = []
+    for metric in metrics:
+        icl_values.extend(metric.icl_seconds)
+
+    summary = render_summary(
+        metrics=metrics,
+        metric_distributions={
+            "ttft_seconds": [m.ttft_seconds for m in metrics],
+            "ttfp_seconds": [m.ttfp_seconds for m in metrics],
+            "icl_seconds": icl_values,
+            "e2e_seconds": [m.e2e_seconds for m in metrics],
+            "audio_duration_seconds": [m.audio_duration_seconds for m in metrics],
+            "audio_chunks": [float(m.audio_chunks) for m in metrics],
+            "first_audio_pcm_bytes": [float(m.first_audio_pcm_bytes) for m in metrics],
+            "rtf_e2e": [m.rtf_e2e for m in metrics],
+            "rtf_audio_window": [m.rtf_audio_window for m in metrics],
+            "playback_safe_ratio": [m.playback_safe_ratio for m in metrics],
+        },
+        errors=errors,
+        wall_seconds=wall_seconds,
+        metadata=metadata,
+        metric_definitions=METRIC_DEFINITIONS,
+    )
+
+    print(write_output(summary, args.output))
+    success_rate = summary["success_rate"]
+    if success_rate < 0.99:
+        return 1
     return 0
 
 
