@@ -1,0 +1,13 @@
+manifest:
+  base_commit: 0a12ac52
+  upstream_commit: 0a12ac52
+  model_revision: MiniCPM-o-4_5 (OpenBMB, 19 GiB)
+  image: HiDevLab vLLM-Omni v0.25.0 (Ubuntu 22.04.5)
+  hardware: Atlas 800T A3 (Ascend 910C x2)
+  unique_variable: max_num_batched_tokens (thinker stage-0 NPU override)
+  baseline_value: 8192
+  candidate_values: [4096, 8192, 12288]
+  correctness_gate: text smoke 30/30 success per cell
+  execution_status: complete
+  conclusion: no effect on conc-8 TTFT cliff; keep baseline 8192. Cliff is
+    not batching-capacity bound — investigate scheduler/backpressure/profiler.
