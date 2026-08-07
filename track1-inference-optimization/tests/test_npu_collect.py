@@ -24,14 +24,14 @@ class NpuSmiParserTests(unittest.TestCase):
 
         self.assertEqual(len(devices), 2)
         dev0, dev1 = devices
-        # Device 0: power 170.7, temp 49, aicore 0, hbm 51255
-        self.assertEqual(dev0["device_id"], "4")
+        # device_id is the chip index (unique per NPU), not the shared group id
+        self.assertEqual(dev0["device_id"], "0")
         self.assertEqual(dev0["power"], "170.7")
         self.assertEqual(dev0["temp"], "49")
         self.assertEqual(dev0["aicore"], "0")
         self.assertEqual(dev0["hbm"], "51255")
         # Device 1: power unavailable ("-"), temp 51, aicore 0, hbm 45292
-        self.assertEqual(dev1["device_id"], "4")
+        self.assertEqual(dev1["device_id"], "1")
         self.assertEqual(dev1["power"], "")
         self.assertEqual(dev1["temp"], "51")
         self.assertEqual(dev1["aicore"], "0")

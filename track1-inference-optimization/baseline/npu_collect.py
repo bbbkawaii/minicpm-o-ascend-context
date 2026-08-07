@@ -53,8 +53,6 @@ def parse_npu_smi(text: str) -> list[dict[str, str]]:
         #   "| 4     Ascend910 | OK | 170.7  49  0/0 |"
         if "Ascend910" in line:
             cells = [c for c in line.split("|") if c.strip()]
-            first_cell = cells[0].split() if cells else []
-            device_id = first_cell[0] if first_cell else ""
             # power/temp live in the last cell carrying a numeric payload
             power = temp = ""
             for cell in cells[1:]:
@@ -64,7 +62,7 @@ def parse_npu_smi(text: str) -> list[dict[str, str]]:
                     temp = _f(tokens[1])
                     break
             pending_device = {
-                "device_id": _f(device_id),
+                "device_id": "",
                 "power": power,
                 "temp": temp,
                 "aicore": "",
@@ -81,7 +79,13 @@ def parse_npu_smi(text: str) -> list[dict[str, str]]:
                 aicore = _f(aicore_m.group(1)) if aicore_m else ""
                 hbm_m = re.findall(r"(\d+\.?\d*)\s*/\s*\d+\.?\d*", third)
                 hbm = _f(hbm_m[-1]) if hbm_m else ""
+                # device_id is the chip index (first cell "0  8" -> "0"),
+                # which uniquely identifies the NPU; the Line A group id is
+                # shared by both cards on this host.
+                chip_cell = cells[0].split()
+                chip_id = chip_cell[0] if chip_cell else ""
                 if pending_device is not None:
+                    pending_device["device_id"] = _f(chip_id)
                     pending_device["aicore"] = aicore
                     pending_device["hbm"] = hbm
                     devices.append(pending_device)
