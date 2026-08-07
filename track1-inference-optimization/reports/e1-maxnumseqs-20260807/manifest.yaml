@@ -1,0 +1,12 @@
+manifest:
+  base_commit: 0a12ac52
+  upstream_commit: 0a12ac52
+  model_revision: MiniCPM-o-4_5 (OpenBMB, 19 GiB)
+  image: HiDevLab vLLM-Omni v0.25.0 (Ubuntu 22.04.5)
+  hardware: Atlas 800T A3 (Ascend 910C x2)
+  unique_variable: max_num_seqs (all 3 stages)
+  baseline_value: 4
+  candidate_values: [1, 2, 4]
+  correctness_gate: text smoke 30/30 success per cell
+  execution_status: complete
+  conclusion: baseline max_num_seqs=4 is Pareto-optimal; no change recommended
