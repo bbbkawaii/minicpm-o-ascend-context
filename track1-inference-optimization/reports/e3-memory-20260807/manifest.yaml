@@ -1,0 +1,15 @@
+manifest:
+  base_commit: 0a12ac52
+  upstream_commit: 0a12ac52
+  model_revision: MiniCPM-o-4_5 (OpenBMB, 19 GiB)
+  image: HiDevLab vLLM-Omni v0.25.0 (Ubuntu 22.04.5)
+  hardware: Atlas 800T A3 (Ascend 910C x2)
+  unique_variable: gpu_memory_utilization (thinker/talker/codec triple)
+  baseline_value: B0 = 0.90/0.55/0.35
+  candidate_values: [B1 0.88/0.52/0.34, B2 0.92/0.55/0.35, B3 0.90/0.58/0.32, B4 0.90/0.52/0.38]
+  correctness_gate: text smoke 30/30 success per cell, no OOM
+  execution_status: complete
+  conclusion: B3 (0.90/0.58/0.32) is a candidate (+3.5% throughput, -9% TTFT
+    over baseline, above A1 thresholds) pending audio re-validation. B1
+    rejected (starves pipeline). B2/B4 noise. conc-8 TTFT cliff not
+    memory-bound (consistent with E2) -> P1 profiler work.
