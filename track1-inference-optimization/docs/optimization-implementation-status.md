@@ -52,8 +52,9 @@ bash -n baseline/*.sh                       # shell 语法通过
 ## 未完成 / 待办
 
 - [x] **E1 max_num_seqs 实验** → 基线(4)是 Pareto 最优,无需改动(见 `reports/e1-maxnumseqs-20260807.md`)
-- [ ] E2 `max_num_batched_tokens` 单变量(目标:conc-8 TTFT 悬崖 96→872ms)
+- [x] **E2 batched_tokens 实验** → 对 conc-8 TTFT 悬崖无影响,保留基线 8192;悬崖非批处理容量问题(见 `reports/e2-batchedtokens-20260807.md`)
 - [ ] E3 两卡显存预算 B1-B4
+- [ ] **P1 分阶段 timeline**(基于 E2 结论:conc-8 悬崖需 profiler 定位,非配置旋钮)
 - [ ] M6 audio 矩阵(conc 1/2/4,需 ~1h 算力)
 - [ ] C1 视频 fixture 填充真实 URL + SHA256 + 许可证
 - [ ] C2 正式效果集（Daily-Omni / TTS-Seed / Video-MME）适配
