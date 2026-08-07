@@ -1,0 +1,32 @@
+{
+  "$comment": "Multimodal smoke fixtures. Large media is referenced by URL+SHA256 (downloaded on demand) rather than committed. Small inputs are inline (base64) so the suite runs offline and deterministically.",
+  "modalities": {
+    "text": {
+      "kind": "inline",
+      "media_type": "text",
+      "prompt": "Reply with exactly: ASCEND_SMOKE_OK"
+    },
+    "image": {
+      "kind": "inline",
+      "format": "png",
+      "base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+      "prompt": "Describe what you see in one short phrase.",
+      "media_type": "image_url"
+    },
+    "audio": {
+      "kind": "inline",
+      "format": "wav",
+      "base64": "UklGRjQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",
+      "prompt": "Transcribe the audio.",
+      "media_type": "input_audio"
+    },
+    "video": {
+      "kind": "url",
+      "url": "",
+      "sha256": "",
+      "license": "tbd",
+      "prompt": "Summarize the video in one sentence.",
+      "media_type": "video_url"
+    }
+  }
+}
