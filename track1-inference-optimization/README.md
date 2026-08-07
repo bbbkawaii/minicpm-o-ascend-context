@@ -48,6 +48,7 @@
 | 跑 Benchmark | `recipes/OpenBMB/` 目录 |
 | 做量化 | W8A16 [Commit 5018f2d](https://github.com/vllm-project/vllm-ascend/commit/5018f2d8fd6dc11240900e38049150619895570d) + [在线量化文档](https://docs.vllm.com.cn/projects/vllm-omni/en/latest/user_guide/quantization/online/) |
 | 做优化 | [veRL Ascend 调优指南](https://verl.readthedocs.io/en/latest/ascend_tutorial/dev_guide/performance/perf_tuning_on_ascend.html) + FlexNPU 论文 |
+| 执行后续优化 | [低成本模型优化实现方案](docs/low-cost-model-optimization-plan.md) |
 | 参考同类优化 | [Qwen3-Omni Ascend 优化实战](https://blog.csdn.net/Lumos_Lovegood/article/details/161293031) |
 
 ## 开始执行
@@ -58,7 +59,7 @@
 
 ```bash
 cd track1-inference-optimization
-python -m unittest discover -s tests -v
+python3 -m unittest discover -s tests -v
 bash -n baseline/*.sh
 ```
 
@@ -81,9 +82,10 @@ bash baseline/run_gate0.sh
 - [x] 赛道调研（见 `docs/competition-research.md`）
 - [x] 资源调研（见 `docs/reference-resources.md`）
 - [x] 基线工程骨架（环境检查、服务启动、text smoke、早期 TTFT/E2E）
-- [ ] HiDevLab 算力申请
-- [ ] Docker 环境部署
-- [ ] 基线模型运行
+- [x] HiDevLab 算力申请
+- [x] Docker 环境部署
+- [x] 基线模型运行
+- [x] 910C 双卡文本与语音早期基线
 - [ ] Benchmark 评测（Daily-Omni / TTS-Seed / Video-MME）
 - [ ] Demo 对接
 - [ ] 性能优化

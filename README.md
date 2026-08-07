@@ -6,7 +6,7 @@
 
 | 项目 | 目录 | 独立目标 | 当前状态 |
 |---|---|---|---|
-| 赛道一：高性能推理优化 | [`track1-inference-optimization/`](track1-inference-optimization/) | 在昇腾 NPU 上优化 MiniCPM-o 4.5 的推理性能与复现质量 | 基线工程已建立，等待 HiDevLab 算力 |
+| 赛道一：高性能推理优化 | [`track1-inference-optimization/`](track1-inference-optimization/) | 在昇腾 NPU 上优化 MiniCPM-o 4.5 的推理性能与复现质量 | 910C 双卡文本/语音基线已完成，进入正式评测与优化 |
 | 赛道二：创新应用 | [`track2-guardian-o/`](track2-guardian-o/) | 独立开发“见微 Guardian-O”全模态实验操作教练 | 产品定义完成，等待 Web MVP |
 
 ## 强制边界
