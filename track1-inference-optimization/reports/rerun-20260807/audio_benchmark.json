@@ -1,0 +1,680 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-07T21:10:08+00:00",
+  "model": "openbmb/MiniCPM-o-4_5",
+  "base_url": "http://127.0.0.1:8091/v1",
+  "requests": 8,
+  "successes": 8,
+  "failures": 0,
+  "timeouts": 0,
+  "http_status_distribution": {},
+  "success_rate": 1.0,
+  "wall_seconds": 24.410874,
+  "request_throughput": 0.327723,
+  "run_metadata": {
+    "model": "openbmb/MiniCPM-o-4_5",
+    "base_url": "http://127.0.0.1:8091/v1",
+    "requests": 8,
+    "concurrency": 1,
+    "warmup_requests": 2,
+    "prompt_sha256": "6d265dae91e7531d",
+    "python_version": "3.12",
+    "schema_version": 1,
+    "created_at": "2026-08-07T21:10:08+00:00"
+  },
+  "distributions": {
+    "ttft_seconds": {
+      "count": 8,
+      "mean": 0.555872,
+      "p50": 0.557037,
+      "p95": 0.558597,
+      "p99": 0.558949,
+      "min": 0.549009,
+      "max": 0.559037
+    },
+    "ttfp_seconds": {
+      "count": 8,
+      "mean": 1.296249,
+      "p50": 1.294584,
+      "p95": 1.320855,
+      "p99": 1.32834,
+      "min": 1.273726,
+      "max": 1.330211
+    },
+    "icl_seconds": {
+      "count": 56,
+      "mean": 0.250543,
+      "p50": 0.239539,
+      "p95": 0.28907,
+      "p99": 0.302395,
+      "min": 0.21328,
+      "max": 0.307053
+    },
+    "e2e_seconds": {
+      "count": 8,
+      "mean": 3.050255,
+      "p50": 3.05166,
+      "p95": 3.082484,
+      "p99": 3.082914,
+      "min": 3.007262,
+      "max": 3.083021
+    },
+    "audio_duration_seconds": {
+      "count": 8,
+      "mean": 7.52,
+      "p50": 7.52,
+      "p95": 7.52,
+      "p99": 7.52,
+      "min": 7.52,
+      "max": 7.52
+    },
+    "audio_chunks": {
+      "count": 8,
+      "mean": 8.0,
+      "p50": 8.0,
+      "p95": 8.0,
+      "p99": 8.0,
+      "min": 8.0,
+      "max": 8.0
+    },
+    "first_audio_pcm_bytes": {
+      "count": 8,
+      "mean": 40320.0,
+      "p50": 40320.0,
+      "p95": 40320.0,
+      "p99": 40320.0,
+      "min": 40320.0,
+      "max": 40320.0
+    },
+    "rtf_e2e": {
+      "count": 8,
+      "mean": 0.405619,
+      "p50": 0.405806,
+      "p95": 0.409905,
+      "p99": 0.409962,
+      "min": 0.399902,
+      "max": 0.409976
+    },
+    "rtf_audio_window": {
+      "count": 8,
+      "mean": 0.233219,
+      "p50": 0.233084,
+      "p95": 0.236891,
+      "p99": 0.237529,
+      "min": 0.230012,
+      "max": 0.237689
+    },
+    "playback_safe_ratio": {
+      "count": 8,
+      "mean": 1.0,
+      "p50": 1.0,
+      "p95": 1.0,
+      "p99": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "first_audio_duration_seconds": {
+      "count": 8,
+      "mean": 0.84,
+      "p50": 0.84,
+      "p95": 0.84,
+      "p99": 0.84,
+      "min": 0.84,
+      "max": 0.84
+    },
+    "max_playback_gap_seconds": {
+      "count": 8,
+      "mean": 0.290632,
+      "p50": 0.288278,
+      "p95": 0.304089,
+      "p99": 0.30646,
+      "min": 0.281326,
+      "max": 0.307053
+    }
+  },
+  "errors": [],
+  "results": [
+    {
+      "request_id": 0,
+      "ttft_seconds": 0.5590373000013642,
+      "ttfp_seconds": 1.2954079400224146,
+      "e2e_seconds": 3.0830212800065055,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.7874219899822492,
+      "icl_seconds": [
+        0.22170493,
+        0.21936665,
+        0.23100251,
+        0.30705258,
+        0.27816089,
+        0.2889821,
+        0.24115233
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.307053,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.295408,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.517113,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.73648,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.967482,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.274535,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.552696,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.841678,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.08283,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    },
+    {
+      "request_id": 1,
+      "ttft_seconds": 0.5577785299974494,
+      "ttfp_seconds": 1.3034799300075974,
+      "e2e_seconds": 3.033380400011083,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.729690740001388,
+      "icl_seconds": [
+        0.21930577,
+        0.23792648,
+        0.22551946,
+        0.26130904,
+        0.28079446,
+        0.28132596,
+        0.22350957
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.281326,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.30348,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.522786,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.760712,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.986232,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.247541,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.528335,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.809661,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.033171,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    },
+    {
+      "request_id": 2,
+      "ttft_seconds": 0.5567086400114931,
+      "ttfp_seconds": 1.2854110499902163,
+      "e2e_seconds": 3.0549125600082334,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.7692894500214607,
+      "icl_seconds": [
+        0.21568001,
+        0.21531061,
+        0.25753264,
+        0.28871604,
+        0.28842419,
+        0.28933351,
+        0.21429245
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.289334,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.285411,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.501091,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.716402,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.973934,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.26265,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.551075,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.840408,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.054701,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    },
+    {
+      "request_id": 3,
+      "ttft_seconds": 0.5551951400120743,
+      "ttfp_seconds": 1.2867048800108023,
+      "e2e_seconds": 3.0572268800169695,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.770264449995011,
+      "icl_seconds": [
+        0.21817484,
+        0.22122841,
+        0.25419188,
+        0.27690199,
+        0.28762443,
+        0.2879031,
+        0.2242398
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.287903,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.286705,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.50488,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.726108,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.9803,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.257202,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.544826,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.83273,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.056969,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    },
+    {
+      "request_id": 4,
+      "ttft_seconds": 0.5575412499892991,
+      "ttfp_seconds": 1.3302109199867118,
+      "e2e_seconds": 3.081487429997651,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.751120010012528,
+      "icl_seconds": [
+        0.21832875,
+        0.2187928,
+        0.22371265,
+        0.29858393,
+        0.27878674,
+        0.28791666,
+        0.22499848
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.298584,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.330211,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.54854,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.767332,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.991045,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.289629,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.568416,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.856332,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.081331,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    },
+    {
+      "request_id": 5,
+      "ttft_seconds": 0.5543395600107033,
+      "ttfp_seconds": 1.2937598899879958,
+      "e2e_seconds": 3.0484075699932873,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.754461260017706,
+      "icl_seconds": [
+        0.21377757,
+        0.2185817,
+        0.25535899,
+        0.28156809,
+        0.28865337,
+        0.28013956,
+        0.21638198
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.288653,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.29376,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.507537,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.726119,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.981478,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.263046,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.5517,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.831839,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.048221,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    },
+    {
+      "request_id": 6,
+      "ttft_seconds": 0.5490089200029615,
+      "ttfp_seconds": 1.2737259900022764,
+      "e2e_seconds": 3.0072616699908394,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.7333087399892975,
+      "icl_seconds": [
+        0.21327995,
+        0.21856915,
+        0.23360273,
+        0.28063352,
+        0.28646651,
+        0.28275533,
+        0.21800155
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.286467,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.273726,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.487006,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.705575,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.939178,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.219811,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.506278,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.789033,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.007035,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    },
+    {
+      "request_id": 7,
+      "ttft_seconds": 0.5573648699792102,
+      "ttfp_seconds": 1.3012880099995527,
+      "e2e_seconds": 3.0363382599898614,
+      "audio_duration_seconds": 7.52,
+      "audio_chunks": 8,
+      "pcm_bytes": 360960,
+      "sample_rate_hz": 24000,
+      "audio_window_seconds": 1.7348764399939682,
+      "icl_seconds": [
+        0.23553606,
+        0.22787172,
+        0.21916363,
+        0.25908943,
+        0.27481318,
+        0.28573318,
+        0.23266924
+      ],
+      "first_audio_pcm_bytes": 40320,
+      "first_audio_duration_seconds": 0.84,
+      "max_playback_gap_seconds": 0.285733,
+      "playback_safe_ratio": 1.0,
+      "chunks": [
+        {
+          "arrival_offset_seconds": 1.301288,
+          "pcm_bytes": 40320,
+          "duration_seconds": 0.84
+        },
+        {
+          "arrival_offset_seconds": 1.536824,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.764696,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 1.983859,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.242949,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.517762,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 2.803495,
+          "pcm_bytes": 48000,
+          "duration_seconds": 1.0
+        },
+        {
+          "arrival_offset_seconds": 3.036164,
+          "pcm_bytes": 32640,
+          "duration_seconds": 0.68
+        }
+      ]
+    }
+  ],
+  "metric_definitions": {
+    "ttft_seconds": "request start to first non-empty text delta",
+    "ttfp_seconds": "request start to first decodable audio WAV delta",
+    "icl_seconds": "inter-chunk latency between consecutive audio deltas",
+    "e2e_seconds": "request start to stream completion",
+    "audio_duration_seconds": "summed decoded audio duration of all chunks",
+    "audio_chunks": "number of decodable audio deltas",
+    "first_audio_pcm_bytes": "PCM bytes of the first audio chunk",
+    "rtf_e2e": "E2E seconds divided by generated audio duration",
+    "rtf_audio_window": "first-to-last audio arrival window divided by generated audio duration",
+    "playback_safe_ratio": "fraction of audio arrivals whose inter-chunk gap does not exceed the previous chunk's decoded audio duration",
+    "first_audio_duration_seconds": "decoded duration of the first audio chunk",
+    "max_playback_gap_seconds": "largest inter-chunk arrival gap in the stream"
+  }
+}

@@ -1,8 +1,8 @@
 # 优化实现状态（M1–M6 + C1）
 
-> 日期：2026-08-07（评审修复后）
+> 日期：2026-08-07（评审修复后 + 910C 正式化）
 > 依据：`docs/low-cost-model-optimization-plan.md`
-> 状态：M1–M6、C1 已实现，评审 10 项问题已修复；本地测试通过。**910C 新指标为 provisional**（待完整复现记录）
+> 状态：M1–M6、C1 已实现，评审 10 项问题已修复；本地测试通过。**910C 指标已正式化**（见 `reports/baseline-910c-formal-20260807.md` + `reports/rerun-20260807/`）
 
 ## 评审修复记录（10/10 完成）
 
@@ -19,20 +19,27 @@
 | 9 [中] | 错误未脱敏 | 正则脱敏 authorization/token/password/api_key/Bearer |
 | 10 [低] | C1 可复现不足 | 固定 seed=42；fixture 补 source/license/sha256 |
 
-## 910C 新指标（⚠️ provisional，待补原始 JSON/命令/环境记录）
+> 修复过程中另发现并修复：npu-smi 的 device_id 应取 chip 索引(0/1)而非组号(4)，否则双卡数据被归到同一组。
+
+## 910C 正式指标（完整复现证据已归档）
+
+完整报告：`reports/baseline-910c-formal-20260807.md`
+原始数据：`reports/rerun-20260807/`（benchmark JSON + 逐卡资源 + environment.txt）
 
 | 场景 | 指标 | 值 |
 |---|---|---|
-| 文本 | TTFT p50/p95 | 94.2ms / 103.5ms |
-| 文本 | ITL p50 | 19.5ms |
-| 文本 | E2E p50 | 781ms |
-| 文本 | TPOT p50 | 11.3ms |
-| 音频 | TTFP p50 | 1.30s |
-| 音频 | ICL p50 | 245.6ms |
-| 音频 | RTF p50 | 0.408 |
+| 文本 | TTFT p50/p95/p99 | 92.6 / 96.5 / 102.9 ms |
+| 文本 | ITL p50 | 19.5 ms |
+| 文本 | E2E p50 | 780 ms |
+| 文本 | 吞吐 | 2.55 req/s |
+| 文本 | TPOT | null（流式接口无 usage token，不字符替代） |
+| 音频 | TTFT p50 | 557 ms |
+| 音频 | TTFP p50 | 1295 ms |
+| 音频 | ICL p50 | 239.5 ms |
+| 音频 | RTF p50 | 0.406 |
 | 音频 | 播放安全率 | 1.0 |
 
-> 这些数字在评审修复前采集，尚未附完整原始 JSON、执行命令和环境记录。按项目"有效结果"定义，应标记为 provisional，待重跑后正式化。
+逐卡资源（音频期间）：device 0 AICore 峰值 69%、device 1 77%；两卡 HBM 51256 / 45292 MB；host 峰值 122.8 GB。
 
 ## 测试
 
@@ -44,9 +51,9 @@ bash -n baseline/*.sh                       # shell 语法通过
 
 ## 未完成 / 待办
 
-- [ ] 910C 重跑完整基准，补原始 JSON/命令/环境记录（正式化 provisional 指标）
 - [ ] M6 完整矩阵 910C 跑 3 轮（需长时间算力）
 - [ ] C1 视频 fixture 填充真实 URL + SHA256 + 许可证
 - [ ] C2 正式效果集（Daily-Omni / TTS-Seed / Video-MME）适配
 - [ ] E1–E5 配置单变量实验
+
 
