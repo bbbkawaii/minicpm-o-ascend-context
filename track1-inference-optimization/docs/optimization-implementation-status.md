@@ -51,9 +51,11 @@ bash -n baseline/*.sh                       # shell 语法通过
 
 ## 未完成 / 待办
 
-- [ ] M6 完整矩阵 910C 跑 3 轮（需长时间算力）
+- [x] **E1 max_num_seqs 实验** → 基线(4)是 Pareto 最优,无需改动(见 `reports/e1-maxnumseqs-20260807.md`)
+- [ ] E2 `max_num_batched_tokens` 单变量(目标:conc-8 TTFT 悬崖 96→872ms)
+- [ ] E3 两卡显存预算 B1-B4
+- [ ] M6 audio 矩阵(conc 1/2/4,需 ~1h 算力)
 - [ ] C1 视频 fixture 填充真实 URL + SHA256 + 许可证
 - [ ] C2 正式效果集（Daily-Omni / TTS-Seed / Video-MME）适配
-- [ ] E1–E5 配置单变量实验
 
 
