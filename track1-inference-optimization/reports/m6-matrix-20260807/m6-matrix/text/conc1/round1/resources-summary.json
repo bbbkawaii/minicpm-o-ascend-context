@@ -1,0 +1,118 @@
+{
+  "samples": 108,
+  "first_timestamp": "2026-08-07T21:18:05.605+00:00",
+  "last_timestamp": "2026-08-07T21:19:28.166+00:00",
+  "devices": {
+    "0": {
+      "samples": 54,
+      "metrics": {
+        "npu_aicore_pct": {
+          "label": "npu utilization (%)",
+          "status": "ok",
+          "peak": 72.0,
+          "count": 54,
+          "mean": 65.351852,
+          "p50": 69.5,
+          "p95": 71.0,
+          "p99": 72.0,
+          "min": 0.0,
+          "max": 72.0
+        },
+        "npu_hbm_mb": {
+          "label": "NPU HBM (MB)",
+          "status": "ok",
+          "peak": 51256.0,
+          "count": 54,
+          "mean": 51255.518519,
+          "p50": 51256.0,
+          "p95": 51256.0,
+          "p99": 51256.0,
+          "min": 51255.0,
+          "max": 51256.0
+        },
+        "npu_power_w": {
+          "label": "NPU power (W)",
+          "status": "ok",
+          "peak": 291.7,
+          "count": 54,
+          "mean": 277.337037,
+          "p50": 281.25,
+          "p95": 288.235,
+          "p99": 291.541,
+          "min": 188.7,
+          "max": 291.7
+        },
+        "npu_temp_c": {
+          "label": "NPU temperature (C)",
+          "status": "ok",
+          "peak": 63.0,
+          "count": 54,
+          "mean": 61.074074,
+          "p50": 62.0,
+          "p95": 62.0,
+          "p99": 63.0,
+          "min": 52.0,
+          "max": 63.0
+        }
+      }
+    },
+    "1": {
+      "samples": 54,
+      "metrics": {
+        "npu_aicore_pct": {
+          "label": "npu utilization (%)",
+          "status": "ok",
+          "peak": 0.0,
+          "count": 54,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "p99": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "npu_hbm_mb": {
+          "label": "NPU HBM (MB)",
+          "status": "ok",
+          "peak": 45292.0,
+          "count": 54,
+          "mean": 45292.0,
+          "p50": 45292.0,
+          "p95": 45292.0,
+          "p99": 45292.0,
+          "min": 45292.0,
+          "max": 45292.0
+        },
+        "npu_power_w": {
+          "label": "NPU power (W)",
+          "status": "unavailable",
+          "reason": "no parseable values in column"
+        },
+        "npu_temp_c": {
+          "label": "NPU temperature (C)",
+          "status": "ok",
+          "peak": 54.0,
+          "count": 54,
+          "mean": 52.740741,
+          "p50": 53.0,
+          "p95": 53.0,
+          "p99": 54.0,
+          "min": 52.0,
+          "max": 54.0
+        }
+      }
+    }
+  },
+  "host_used_kb": {
+    "label": "host used memory (kB)",
+    "status": "ok",
+    "peak": 121780108.0,
+    "count": 108,
+    "mean": 119567422.148148,
+    "p50": 119499868.0,
+    "p95": 121365628.2,
+    "p99": 121779913.96,
+    "min": 118599832.0,
+    "max": 121780108.0
+  }
+}

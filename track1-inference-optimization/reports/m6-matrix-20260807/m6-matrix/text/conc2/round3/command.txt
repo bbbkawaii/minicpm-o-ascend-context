@@ -1,0 +1,1 @@
+python3 /root/baseline/benchmark_text.py --base-url http://127.0.0.1:8091/v1 --model openbmb/MiniCPM-o-4_5 --requests 100 --concurrency 2 --warmup-requests 10 --output /workspace/user_data/reports/m6-matrix/text/conc2/round3/benchmark.json 

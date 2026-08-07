@@ -1,0 +1,50 @@
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:26 [stats.py:874] | time_per_output_unit_ms         |        18.308 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:26 [stats.py:874] | vllm_itl_ms                     |        18.322 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:26 [stats.py:874] | vllm_itls_ms                    | 18.322 (n=37) |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:26 [stats.py:874] | vllm_tpot_ms                    |        18.322 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:26 [stats.py:874] | vllm_ttft_ms                    |        66.857 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:26 [stats.py:874] +---------------------------------+---------------+
+[0;36m(APIServer pid=43585)[0;0m INFO:     127.0.0.1:43742 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] 
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] [Overall Summary]
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] +-----------------------------+---------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | Field                       |   Value |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] +-----------------------------+---------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | e2e_requests                |       1 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | e2e_wall_time_ms            | 744.561 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | e2e_total_tokens            |      62 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | e2e_avg_time_per_request_ms | 744.561 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | e2e_avg_tokens_per_s        |  83.271 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | input_preprocess_time_ms    |   0.067 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] | e2e_stage_0_wall_time_ms    | 741.135 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:765] +-----------------------------+---------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] 
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] [RequestE2EStats [request_id=chatcmpl-914a619e603032ae-9e348f2c]]
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] +------------------+---------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] | Field            |   Value |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] +------------------+---------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] | e2e_total_ms     | 741.135 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] | e2e_total_tokens |      62 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:791] +------------------+---------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:832] [OmniTiming] req=chatcmpl-914a619e603032ae-9e348f2c total=0.74s preprocess=0.00s engine=0.74s stages=[0:0.74s]
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] 
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] [StageRequestStats [request_id=chatcmpl-914a619e603032ae-9e348f2c]]
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] +---------------------------------+---------------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | Field                           |             0 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] +---------------------------------+---------------+
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | batch_id                        |           334 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | batch_size                      |             1 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | inter_output_latencies_ms       | 18.346 (n=37) |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | inter_output_latency_ms         |        18.346 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | num_tokens_in                   |            24 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | num_tokens_out                  |            38 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | output_unit_count               |            38 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | output_unit_type                |          text |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | serving_time_to_first_output_ms |        65.464 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | stage_gen_time_ms               |       740.686 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | time_per_output_unit_ms         |        18.347 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | vllm_itl_ms                     |        18.320 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | vllm_itls_ms                    | 18.320 (n=37) |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | vllm_tpot_ms                    |        18.320 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] | vllm_ttft_ms                    |        65.371 |
+[0;36m(APIServer pid=43585)[0;0m INFO 08-07 21:19:27 [stats.py:874] +---------------------------------+---------------+
