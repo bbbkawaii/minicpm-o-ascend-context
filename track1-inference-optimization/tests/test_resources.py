@@ -1,4 +1,3 @@
-import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -7,12 +6,14 @@ from baseline.summarize_resources import summarize_csv
 
 
 class ResourceSummaryTests(unittest.TestCase):
-    def test_summarizes_peak_and_distribution_per_device(self):
-        csv_content = (
-            "timestamp,npu_aicore_pct,npu_hbm_mb,npu_power_w,npu_temp_c,host_used_kb\n"
-            "2026-08-07T00:00:00.000Z,10;20,3115,170,48,1000\n"
-            "2026-08-07T00:00:01.000Z,30;40,5000,180,52,2000\n"
-            "2026-08-07T00:00:02.000Z,50;60,6000,190,55,3000\n"
+    CSV_HEADER = "timestamp,device_id,npu_aicore_pct,npu_hbm_mb,npu_power_w,npu_temp_c,host_used_kb\n"
+
+    def test_per_device_aggregation(self):
+        csv_content = self.CSV_HEADER + (
+            "2026-08-07T00:00:00.000Z,0,10,3115,170,48,1000\n"
+            "2026-08-07T00:00:00.000Z,1,20,45292,180,51,1000\n"
+            "2026-08-07T00:00:01.000Z,0,30,5000,175,50,2000\n"
+            "2026-08-07T00:00:01.000Z,1,40,45292,190,52,2000\n"
         )
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False, encoding="utf-8"
@@ -25,21 +26,22 @@ class ResourceSummaryTests(unittest.TestCase):
         finally:
             path.unlink()
 
-        self.assertEqual(result["samples"], 3)
-        aicore = result["summary"]["npu_aicore_pct"]
-        self.assertEqual(aicore["status"], "ok")
-        # Values flatten across devices: 10,20,30,40,50,60
-        self.assertEqual(aicore["peak"], 60)
-        self.assertEqual(aicore["count"], 6)
-        hbm = result["summary"]["npu_hbm_mb"]
-        self.assertEqual(hbm["peak"], 6000)
-        host = result["summary"]["host_used_kb"]
-        self.assertEqual(host["peak"], 3000)
+        self.assertEqual(result["samples"], 4)
+        dev0 = result["devices"]["0"]["metrics"]
+        dev1 = result["devices"]["1"]["metrics"]
+        # Device 0: aicore 10,30 -> peak 30
+        self.assertEqual(dev0["npu_aicore_pct"]["peak"], 30)
+        self.assertEqual(dev0["npu_hbm_mb"]["peak"], 5000)
+        # Device 1: aicore 20,40 -> peak 40 (NOT mixed with device 0)
+        self.assertEqual(dev1["npu_aicore_pct"]["peak"], 40)
+        self.assertEqual(dev1["npu_hbm_mb"]["peak"], 45292)
+        # Host memory aggregated across all rows
+        self.assertEqual(result["host_used_kb"]["peak"], 2000)
 
     def test_missing_column_is_unavailable_not_zero(self):
         csv_content = (
-            "timestamp,npu_aicore_pct,npu_hbm_mb\n"
-            "2026-08-07T00:00:00.000Z,10,\n"
+            "timestamp,device_id,npu_aicore_pct,npu_hbm_mb\n"
+            "2026-08-07T00:00:00.000Z,0,10,\n"
         )
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False, encoding="utf-8"
@@ -52,21 +54,16 @@ class ResourceSummaryTests(unittest.TestCase):
         finally:
             path.unlink()
 
-        self.assertEqual(result["summary"]["npu_hbm_mb"]["status"], "unavailable")
-        # host_used_kb was never in the CSV
-        self.assertEqual(
-            result["summary"]["host_used_kb"]["status"], "unavailable"
-        )
-        # npu_power_w was never in the CSV
-        self.assertEqual(
-            result["summary"]["npu_power_w"]["status"], "unavailable"
-        )
+        dev0 = result["devices"]["0"]["metrics"]
+        self.assertEqual(dev0["npu_hbm_mb"]["status"], "unavailable")
+        self.assertEqual(dev0["npu_power_w"]["status"], "unavailable")
+        self.assertEqual(result["host_used_kb"]["status"], "unavailable")
 
     def test_empty_file_is_unavailable(self):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False, encoding="utf-8"
         ) as f:
-            f.write("timestamp,npu_aicore_pct,npu_hbm_mb\n")
+            f.write(self.CSV_HEADER)
             path = Path(f.name)
 
         try:
@@ -75,9 +72,8 @@ class ResourceSummaryTests(unittest.TestCase):
             path.unlink()
 
         self.assertEqual(result["samples"], 0)
-        self.assertEqual(
-            result["summary"]["npu_aicore_pct"]["status"], "unavailable"
-        )
+        self.assertEqual(result["devices"], {})
+        self.assertEqual(result["host_used_kb"]["status"], "unavailable")
 
 
 if __name__ == "__main__":

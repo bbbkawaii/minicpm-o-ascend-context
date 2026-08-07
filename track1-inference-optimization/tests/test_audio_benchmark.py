@@ -37,6 +37,9 @@ def make_audio_metric(
     icl=None,
     first_pcm=480,
     safe=1.0,
+    first_dur=0.25,
+    max_gap=0.2,
+    chunks=None,
 ):
     return AudioRequestMetric(
         request_id=request_id,
@@ -50,7 +53,10 @@ def make_audio_metric(
         audio_window_seconds=audio_window,
         icl_seconds=icl if icl is not None else [],
         first_audio_pcm_bytes=first_pcm,
+        first_audio_duration_seconds=first_dur,
+        max_playback_gap_seconds=max_gap,
         playback_safe_ratio=safe,
+        chunks=chunks if chunks is not None else [],
     )
 
 

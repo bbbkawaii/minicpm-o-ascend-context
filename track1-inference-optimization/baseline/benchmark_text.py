@@ -165,10 +165,16 @@ def run_request(
 
     itl = compute_itl(delta_arrivals)
     output_chars = len("".join(output_parts))
-    output_units = output_tokens if output_tokens is not None else output_chars
-    tpot = (
-        (finished - first_text_at) / output_units if output_units > 0 else None
-    )
+    # TPOP measures time per output unit AFTER the first packet. We never
+    # substitute character count for tokens: when the service does not report
+    # usage tokens, tpot is null rather than a misleading char-based number.
+    # The first delta is assumed to carry one token, so the divisor is
+    # (output_tokens - 1) subsequent tokens (clamped to >= 1).
+    if output_tokens is None or output_tokens < 1:
+        tpot = None
+    else:
+        subsequent_tokens = max(output_tokens - 1, 1)
+        tpot = (finished - first_text_at) / subsequent_tokens
 
     return RequestMetric(
         request_id=request_id,
@@ -193,9 +199,11 @@ def execute_round(
     request_rate: float | None,
 ) -> tuple[list[RequestMetric], list[RequestError], float]:
     """Run warm-up + measured requests, isolating per-request failures."""
-    errors: list[RequestError] = []
+    measured_errors: list[RequestError] = []
 
-    def guarded(request_id: int) -> RequestMetric | None:
+    def guarded(
+        request_id: int, errors: list[RequestError]
+    ) -> RequestMetric | None:
         try:
             return run_request(
                 request_id, base_url, model, prompt, timeout
@@ -206,6 +214,7 @@ def execute_round(
                     request_id=request_id,
                     kind="http_error",
                     message=f"HTTP {exc.code}",
+                    http_status=exc.code,
                 )
             )
             return None
@@ -228,12 +237,14 @@ def execute_round(
             )
             return None
 
-    # Warm-up: discard results, still count wall time separately.
+    # Warm-up: results are discarded, and warm-up failures are recorded in a
+    # SEPARATE list so they never pollute the measured success rate or exit code.
+    warmup_errors: list[RequestError] = []
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=concurrency
     ) as executor:
         warmup_futures = [
-            executor.submit(guarded, request_id)
+            executor.submit(guarded, request_id, warmup_errors)
             for request_id in range(warmup_requests)
         ]
         for future in warmup_futures:
@@ -244,26 +255,36 @@ def execute_round(
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=concurrency
     ) as executor:
-        futures = [
-            executor.submit(guarded, request_id)
-            for request_id in range(requests)
-        ]
         if request_rate is None:
+            # Closed loop: fire all measured requests immediately.
+            futures = [
+                executor.submit(guarded, request_id, measured_errors)
+                for request_id in range(requests)
+            ]
             for future in futures:
                 result = future.result()
                 if result is not None:
                     metrics.append(result)
         else:
-            # Open-loop: submit at a fixed rate, bounded by concurrency.
-            interval = 1.0 / request_rate
-            for future in futures:
+            # Open loop: control the actual submit time with a monotonic clock
+            # so the arrival rate matches --request-rate (per-second).
+            interval = 1.0 / request_rate if request_rate > 0 else 0.0
+            next_submit_at = time.monotonic()
+            pending: list[concurrent.futures.Future] = []
+            for request_id in range(requests):
+                now = time.monotonic()
+                if interval > 0 and now < next_submit_at:
+                    time.sleep(next_submit_at - now)
+                pending.append(
+                    executor.submit(guarded, request_id, measured_errors)
+                )
+                next_submit_at = time.monotonic() + interval
+            for future in pending:
                 result = future.result()
                 if result is not None:
                     metrics.append(result)
-                if request_rate > 0:
-                    time.sleep(interval)
     wall_seconds = time.perf_counter() - wall_started
-    return metrics, errors, wall_seconds
+    return metrics, measured_errors, wall_seconds
 
 
 def main() -> int:
@@ -306,6 +327,9 @@ def main() -> int:
     for metric in metrics:
         itl_values.extend(metric.itl_seconds)
 
+    token_counts = [
+        m.output_tokens for m in metrics if m.output_tokens is not None
+    ]
     summary = render_summary(
         metrics=metrics,
         metric_distributions={
@@ -315,12 +339,21 @@ def main() -> int:
             "tpot_seconds": [
                 m.tpot_seconds for m in metrics if m.tpot_seconds is not None
             ],
+            "output_tokens": [float(v) for v in token_counts],
         },
         errors=errors,
         wall_seconds=wall_seconds,
         metadata=metadata,
         metric_definitions=METRIC_DEFINITIONS,
     )
+
+    # Output-token throughput: total reported tokens / wall seconds. Only
+    # meaningful when the service reports usage tokens; otherwise stays absent.
+    total_tokens = sum(token_counts)
+    if total_tokens > 0 and wall_seconds > 0:
+        summary["output_token_throughput"] = round(
+            total_tokens / wall_seconds, 6
+        )
 
     print(write_output(summary, args.output))
     # A >1% failure rate fails the round but still writes the JSON.

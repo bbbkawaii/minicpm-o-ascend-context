@@ -45,7 +45,7 @@ fi
 
 # Write header once.
 if [[ ! -s "$CSV" ]]; then
-  echo "timestamp,npu_aicore_pct,npu_hbm_mb,npu_power_w,npu_temp_c,host_used_kb" > "$CSV"
+  echo "timestamp,device_id,npu_aicore_pct,npu_hbm_mb,npu_power_w,npu_temp_c,host_used_kb" > "$CSV"
 fi
 
 snapshot() {

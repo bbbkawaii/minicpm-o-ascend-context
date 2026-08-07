@@ -19,27 +19,26 @@ NPU_SMI_TWO_DEVICES = """\
 
 
 class NpuSmiParserTests(unittest.TestCase):
-    def test_parses_two_devices_with_multi_value_cells(self):
-        result = parse_npu_smi(NPU_SMI_TWO_DEVICES)
+    def test_parses_two_devices_with_per_device_metrics(self):
+        devices = parse_npu_smi(NPU_SMI_TWO_DEVICES)
 
-        self.assertEqual(result["npu_aicore_pct"], "0;0")
-        self.assertEqual(result["npu_hbm_mb"], "51255;45292")
-        # Second device power is "-" (unavailable), first is 170.7
-        self.assertEqual(result["npu_power_w"], "170.7;")
-        self.assertEqual(result["npu_temp_c"], "49;51")
+        self.assertEqual(len(devices), 2)
+        dev0, dev1 = devices
+        # Device 0: power 170.7, temp 49, aicore 0, hbm 51255
+        self.assertEqual(dev0["device_id"], "4")
+        self.assertEqual(dev0["power"], "170.7")
+        self.assertEqual(dev0["temp"], "49")
+        self.assertEqual(dev0["aicore"], "0")
+        self.assertEqual(dev0["hbm"], "51255")
+        # Device 1: power unavailable ("-"), temp 51, aicore 0, hbm 45292
+        self.assertEqual(dev1["device_id"], "4")
+        self.assertEqual(dev1["power"], "")
+        self.assertEqual(dev1["temp"], "51")
+        self.assertEqual(dev1["aicore"], "0")
+        self.assertEqual(dev1["hbm"], "45292")
 
-    def test_empty_input_yields_empty_metrics(self):
-        result = parse_npu_smi("")
-        self.assertEqual(result["npu_aicore_pct"], "")
-        self.assertEqual(result["npu_hbm_mb"], "")
-        self.assertEqual(result["npu_power_w"], "")
-        self.assertEqual(result["npu_temp_c"], "")
-
-    def test_aicore_and_hbm_extracted_with_memory_pairs(self):
-        result = parse_npu_smi(NPU_SMI_TWO_DEVICES)
-        # aicore must be the leading number, not the memory "0 / 0"
-        aicore = result["npu_aicore_pct"]
-        self.assertNotIn("/", aicore)
+    def test_empty_input_yields_no_devices(self):
+        self.assertEqual(parse_npu_smi(""), [])
 
     def test_host_memory_returns_int_string(self):
         value = host_memory_kb()

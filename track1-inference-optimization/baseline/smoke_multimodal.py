@@ -97,8 +97,16 @@ def build_content(entry: dict, timeout: float) -> list[dict]:
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64.b64encode(body).decode()}"}},
                 {"type": "text", "text": prompt},
             ]
-        # video / other: fall back to text-only so the case is still checked
-        return [{"type": "text", "text": prompt}]
+        if media_type == "video_url":
+            mime = entry.get("mime_type", "video/mp4")
+            return [
+                {
+                    "type": "video_url",
+                    "video_url": {"url": f"data:{mime};base64,{base64.b64encode(body).decode()}"},
+                },
+                {"type": "text", "text": prompt},
+            ]
+        raise RuntimeError(f"unknown url media_type {media_type!r}")
 
     raise RuntimeError(f"unknown fixture kind {kind!r}")
 
@@ -128,6 +136,7 @@ def run_one(
         "modalities": modalities,
         "chat_template_kwargs": chat_template_kwargs,
         "temperature": 0,
+        "seed": 42,  # fixed seed for reproducible smoke responses
         "max_tokens": 128,
         "stream": False,
     }
@@ -248,7 +257,12 @@ def main() -> int:
     if args.output:
         with open(args.output, "w", encoding="utf-8") as out:
             out.write(rendered + "\n")
-    return 1 if failed else 0
+    # C1 is only complete when every modality passed AND none were skipped.
+    # A skipped fixture means we have not verified that modality, so exit
+    # non-zero rather than reporting a pass.
+    if failed or skipped:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

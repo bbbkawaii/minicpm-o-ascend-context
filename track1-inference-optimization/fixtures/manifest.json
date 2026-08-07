@@ -1,32 +1,43 @@
 {
-  "$comment": "Multimodal smoke fixtures. Large media is referenced by URL+SHA256 (downloaded on demand) rather than committed. Small inputs are inline (base64) so the suite runs offline and deterministically.",
+  "$comment": "Multimodal smoke fixtures. Large media is referenced by URL+SHA256 (downloaded on demand) rather than committed. Small inputs are inline (base64) so the suite runs offline and deterministically. Every fixture records source and license for reproducibility.",
   "modalities": {
     "text": {
       "kind": "inline",
       "media_type": "text",
-      "prompt": "Reply with exactly: ASCEND_SMOKE_OK"
+      "prompt": "Reply with exactly: ASCEND_SMOKE_OK",
+      "source": "inline (author-generated)",
+      "license": "CC0",
+      "sha256": ""
     },
     "image": {
       "kind": "inline",
+      "media_type": "image_url",
       "format": "png",
       "base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
       "prompt": "Describe what you see in one short phrase.",
-      "media_type": "image_url"
+      "source": "inline 1x1 PNG (author-generated)",
+      "license": "CC0",
+      "sha256": ""
     },
     "audio": {
       "kind": "inline",
+      "media_type": "input_audio",
       "format": "wav",
       "base64": "UklGRjQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",
       "prompt": "Transcribe the audio.",
-      "media_type": "input_audio"
+      "source": "inline 1kHz silence WAV (author-generated)",
+      "license": "CC0",
+      "sha256": ""
     },
     "video": {
       "kind": "url",
+      "media_type": "video_url",
+      "mime_type": "video/mp4",
       "url": "",
       "sha256": "",
+      "source": "",
       "license": "tbd",
-      "prompt": "Summarize the video in one sentence.",
-      "media_type": "video_url"
+      "prompt": "Summarize the video in one sentence."
     }
   }
 }

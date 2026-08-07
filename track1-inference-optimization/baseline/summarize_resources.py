@@ -3,8 +3,10 @@
 
 Usage: summarize_resources.py RESOURCES.csv [--output summary.json]
 
-Emits per-NPU peak and p50/p95 for utilization and HBM, plus host memory peak.
-A missing column is reported as ``unavailable`` rather than zero, so a broken
+CSV layout: one row per device per tick with a ``device_id`` column.
+The summarizer aggregates per device, reporting peak and p50/p95 for AICore,
+HBM, power, and temperature, plus a host-memory peak shared across devices.
+A missing value is reported as ``unavailable`` rather than zero, so a broken
 collector cannot masquerade as a healthy one.
 """
 
@@ -14,7 +16,6 @@ import argparse
 import csv
 import json
 import os
-import statistics
 import sys
 from pathlib import Path
 
@@ -28,17 +29,17 @@ else:
     sys.path.insert(0, os.path.dirname(_SCRIPT_DIR))
 
 if _IS_FLAT:
-    from metrics import distribution, percentile  # type: ignore[import-not-found]  # noqa: E402
+    from metrics import distribution  # type: ignore[import-not-found]  # noqa: E402
 else:
-    from baseline.metrics import distribution, percentile  # noqa: E402
+    from baseline.metrics import distribution  # noqa: E402
 
-NUMERIC_COLUMNS = {
+DEVICE_COLUMNS = {
     "npu_aicore_pct": "npu utilization (%)",
     "npu_hbm_mb": "NPU HBM (MB)",
     "npu_power_w": "NPU power (W)",
     "npu_temp_c": "NPU temperature (C)",
-    "host_used_kb": "host used memory (kB)",
 }
+HOST_COLUMN = "host_used_kb"
 
 
 def _parse_float(value: str) -> float | None:
@@ -51,19 +52,8 @@ def _parse_float(value: str) -> float | None:
         return None
 
 
-def _split_multi(value: str) -> list[float]:
-    """npu_aicore_pct may be semicolon-joined per-card: '1;2'."""
-    parts = [v.strip() for v in value.split(";") if v.strip()]
-    parsed = []
-    for part in parts:
-        f = _parse_float(part)
-        if f is not None:
-            parsed.append(f)
-    return parsed
-
-
 def summarize_csv(path: Path) -> dict:
-    rows: list[dict[str, float | str]] = []
+    rows: list[dict[str, str]] = []
     with path.open(newline="", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
@@ -72,47 +62,75 @@ def summarize_csv(path: Path) -> dict:
     if not rows:
         return {
             "samples": 0,
-            "summary": {
-                name: {"status": "unavailable", "reason": "no samples"}
-                for name in NUMERIC_COLUMNS
-            },
+            "devices": {},
+            "host_used_kb": {"status": "unavailable", "reason": "no samples"},
             "first_timestamp": None,
             "last_timestamp": None,
         }
 
     timestamps = [row.get("timestamp", "") for row in rows if row.get("timestamp")]
 
-    summary: dict = {}
-    for column, label in NUMERIC_COLUMNS.items():
-        values: list[float] = []
-        for row in rows:
-            raw = row.get(column, "")
-            if column == "npu_aicore_pct":
-                values.extend(_split_multi(raw))
-            else:
-                f = _parse_float(raw)
-                if f is not None:
-                    values.append(f)
-        if not values:
-            summary[column] = {
+    # Group rows by device_id (empty device_id -> grouped under "").
+    by_device: dict[str, list[dict[str, str]]] = {}
+    for row in rows:
+        device_id = row.get("device_id", "")
+        by_device.setdefault(device_id, []).append(row)
+
+    devices_summary: dict[str, dict] = {}
+    for device_id, device_rows in by_device.items():
+        per_device: dict[str, dict] = {}
+        for column, label in DEVICE_COLUMNS.items():
+            values = [
+                float(v)
+                for v in (_parse_float(row.get(column, "")) for row in device_rows)
+                if v is not None
+            ]
+            if not values:
+                per_device[column] = {
+                    "label": label,
+                    "status": "unavailable",
+                    "reason": "no parseable values in column",
+                }
+                continue
+            dist = distribution(values)
+            per_device[column] = {
                 "label": label,
-                "status": "unavailable",
-                "reason": "no parseable values in column",
+                "status": "ok",
+                "peak": round(max(values), 6),
+                **dist,
             }
-            continue
-        dist = distribution(values)
-        summary[column] = {
-            "label": label,
+        devices_summary[device_id] = {
+            "samples": len(device_rows),
+            "metrics": per_device,
+        }
+
+    # Host memory: aggregate across all rows (shared system resource).
+    host_values = [
+        float(v)
+        for v in (_parse_float(row.get(HOST_COLUMN, "")) for row in rows)
+        if v is not None
+    ]
+    if host_values:
+        host_dist = distribution(host_values)
+        host_summary = {
+            "label": "host used memory (kB)",
             "status": "ok",
-            "peak": round(max(values), 6),
-            **dist,
+            "peak": round(max(host_values), 6),
+            **host_dist,
+        }
+    else:
+        host_summary = {
+            "label": "host used memory (kB)",
+            "status": "unavailable",
+            "reason": "no parseable values in column",
         }
 
     return {
         "samples": len(rows),
         "first_timestamp": timestamps[0] if timestamps else None,
         "last_timestamp": timestamps[-1] if timestamps else None,
-        "summary": summary,
+        "devices": devices_summary,
+        "host_used_kb": host_summary,
     }
 
 

@@ -80,12 +80,23 @@ METRIC_DEFINITIONS = {
         "fraction of audio arrivals whose inter-chunk gap does not exceed "
         "the previous chunk's decoded audio duration"
     ),
+    "first_audio_duration_seconds": "decoded duration of the first audio chunk",
+    "max_playback_gap_seconds": "largest inter-chunk arrival gap in the stream",
 }
 
 
 @dataclass(frozen=True)
 class WavChunkInfo:
     sample_rate_hz: int
+    pcm_bytes: int
+    duration_seconds: float
+
+
+@dataclass(frozen=True)
+class AudioChunkRecord:
+    """One decoded audio chunk's arrival evidence."""
+
+    arrival_offset_seconds: float
     pcm_bytes: int
     duration_seconds: float
 
@@ -103,7 +114,10 @@ class AudioRequestMetric:
     audio_window_seconds: float
     icl_seconds: list[float]
     first_audio_pcm_bytes: int
+    first_audio_duration_seconds: float
+    max_playback_gap_seconds: float
     playback_safe_ratio: float
+    chunks: list[AudioChunkRecord]
 
     @property
     def rtf_e2e(self) -> float:
@@ -241,13 +255,25 @@ def run_request(
     # chunk does not exceed the previous chunk's decoded audio duration.
     safe_count = 0
     comparisons = 0
+    max_gap = 0.0
     for i in range(1, len(audio_arrivals)):
         gap = arrival_times[i] - arrival_times[i - 1]
         previous_duration = audio_arrivals[i - 1][1].duration_seconds
+        max_gap = max(max_gap, gap)
         comparisons += 1
         if gap <= previous_duration:
             safe_count += 1
     playback_safe_ratio = safe_count / comparisons if comparisons else 1.0
+
+    # Per-chunk evidence, offset relative to the request start.
+    chunk_records = [
+        AudioChunkRecord(
+            arrival_offset_seconds=round(ts - started, 6),
+            pcm_bytes=chunk.pcm_bytes,
+            duration_seconds=round(chunk.duration_seconds, 6),
+        )
+        for ts, chunk in audio_arrivals
+    ]
 
     return AudioRequestMetric(
         request_id=request_id,
@@ -261,7 +287,10 @@ def run_request(
         audio_window_seconds=max(last_audio_at - first_audio_at, 0.0),
         icl_seconds=icl,
         first_audio_pcm_bytes=first_pcm_bytes,
+        first_audio_duration_seconds=audio_arrivals[0][1].duration_seconds,
+        max_playback_gap_seconds=round(max_gap, 6),
         playback_safe_ratio=round(playback_safe_ratio, 6),
+        chunks=chunk_records,
     )
 
 
@@ -276,9 +305,11 @@ def execute_round(
     warmup_requests: int,
     request_rate: float | None,
 ) -> tuple[list[AudioRequestMetric], list[RequestError], float]:
-    errors: list[RequestError] = []
+    measured_errors: list[RequestError] = []
 
-    def guarded(request_id: int) -> AudioRequestMetric | None:
+    def guarded(
+        request_id: int, errors: list[RequestError]
+    ) -> AudioRequestMetric | None:
         try:
             return run_request(
                 request_id, base_url, model, prompt, timeout
@@ -289,6 +320,7 @@ def execute_round(
                     request_id=request_id,
                     kind="http_error",
                     message=f"HTTP {exc.code}",
+                    http_status=exc.code,
                 )
             )
             return None
@@ -311,11 +343,14 @@ def execute_round(
             )
             return None
 
+    # Warm-up failures are recorded separately so they never pollute the
+    # measured success rate or exit code.
+    warmup_errors: list[RequestError] = []
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=concurrency
     ) as executor:
         warmup_futures = [
-            executor.submit(guarded, request_id)
+            executor.submit(guarded, request_id, warmup_errors)
             for request_id in range(warmup_requests)
         ]
         for future in warmup_futures:
@@ -326,25 +361,34 @@ def execute_round(
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=concurrency
     ) as executor:
-        futures = [
-            executor.submit(guarded, request_id)
-            for request_id in range(requests)
-        ]
         if request_rate is None:
+            futures = [
+                executor.submit(guarded, request_id, measured_errors)
+                for request_id in range(requests)
+            ]
             for future in futures:
                 result = future.result()
                 if result is not None:
                     metrics.append(result)
         else:
-            interval = 1.0 / request_rate
-            for future in futures:
+            # True open-loop rate: control submit time with a monotonic clock.
+            interval = 1.0 / request_rate if request_rate > 0 else 0.0
+            next_submit_at = time.monotonic()
+            pending: list[concurrent.futures.Future] = []
+            for request_id in range(requests):
+                now = time.monotonic()
+                if interval > 0 and now < next_submit_at:
+                    time.sleep(next_submit_at - now)
+                pending.append(
+                    executor.submit(guarded, request_id, measured_errors)
+                )
+                next_submit_at = time.monotonic() + interval
+            for future in pending:
                 result = future.result()
                 if result is not None:
                     metrics.append(result)
-                if request_rate > 0:
-                    time.sleep(interval)
     wall_seconds = time.perf_counter() - wall_started
-    return metrics, errors, wall_seconds
+    return metrics, measured_errors, wall_seconds
 
 
 def main() -> int:
@@ -400,6 +444,12 @@ def main() -> int:
             "rtf_e2e": [m.rtf_e2e for m in metrics],
             "rtf_audio_window": [m.rtf_audio_window for m in metrics],
             "playback_safe_ratio": [m.playback_safe_ratio for m in metrics],
+            "first_audio_duration_seconds": [
+                m.first_audio_duration_seconds for m in metrics
+            ],
+            "max_playback_gap_seconds": [
+                m.max_playback_gap_seconds for m in metrics
+            ],
         },
         errors=errors,
         wall_seconds=wall_seconds,

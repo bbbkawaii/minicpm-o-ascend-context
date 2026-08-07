@@ -106,6 +106,26 @@ class SummarySchemaTests(unittest.TestCase):
         self.assertIn("distributions", summary)
         self.assertIn("run_metadata", summary)
 
+    def test_http_status_distribution(self):
+        errors = [
+            RequestError(0, "http_error", "HTTP 429", http_status=429),
+            RequestError(1, "http_error", "HTTP 500", http_status=500),
+            RequestError(2, "http_error", "HTTP 500", http_status=500),
+            RequestError(3, "timeout", "timed out"),
+        ]
+        metadata = build_metadata(
+            model="m", base_url="http://x/v1", requests=4,
+            concurrency=1, warmup_requests=0, prompt="p",
+        )
+        summary = render_summary(
+            metrics=[],
+            metric_distributions={},
+            errors=errors,
+            wall_seconds=1.0,
+            metadata=metadata,
+        )
+        self.assertEqual(summary["http_status_distribution"], {429: 1, 500: 2})
+
 
 class ErrorIsolationTests(unittest.TestCase):
     def test_partial_failure_keeps_round_and_records_error(self):
@@ -121,7 +141,9 @@ class ErrorIsolationTests(unittest.TestCase):
             request_rate=None,
         )
         self.assertEqual(metrics, [])
-        self.assertEqual(len(errors), 3)  # 1 warmup + 2 measured
+        # Only measured failures are reported; warm-up failures are excluded
+        # so they cannot pollute the success rate or exit code.
+        self.assertEqual(len(errors), 2)  # 2 measured, NOT the 1 warmup
         self.assertTrue(all(e.kind in ("error", "timeout", "http_error") for e in errors))
         self.assertGreater(wall_seconds, 0.0)
 
@@ -146,6 +168,22 @@ class ErrorIsolationTests(unittest.TestCase):
         )
         self.assertEqual(len(rendered["errors"]), 1)
         self.assertEqual(rendered["errors"][0]["message"], truncated)
+
+    def test_error_summary_redacts_secrets(self):
+        from baseline.metrics import summarize_error
+
+        secrets = [
+            "Authorization: Bearer abc123def456",
+            "token=ghp_ABCDEFGH1234567890abcdef",
+            "url?access_token=secret123&x=1",
+            "password=correctHorse",
+        ]
+        for message in secrets:
+            rendered = summarize_error(RuntimeError(message))
+            # The secret value itself must not appear in the output.
+            for leak in ("abc123def456", "ABCDEFGH1234567890", "secret123", "correctHorse"):
+                self.assertNotIn(leak, rendered, f"leaked in {message!r}")
+            self.assertIn("redacted", rendered)
 
 
 class StabilityTests(unittest.TestCase):

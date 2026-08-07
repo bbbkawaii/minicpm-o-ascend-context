@@ -20,6 +20,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 import statistics
 import time
 from dataclasses import asdict, dataclass
@@ -27,6 +28,38 @@ from datetime import datetime, timezone
 from typing import Any
 
 SCHEMA_VERSION = 1
+
+# Patterns that could leak credentials or URL secrets into error messages.
+_SENSITIVE_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    # Authorization: Bearer <token> — redact the whole value, including the
+    # space-separated bearer token that follows the colon.
+    (re.compile(r"(?i)authorization\s*[:=]\s*[^\s,]+(?:\s+[^\s,]+)?", re.IGNORECASE), "authorization=<redacted>"),
+    (re.compile(r"(?i)bearer\s+[A-Za-z0-9._~+/=-]{8,}"), "Bearer <redacted>"),
+    (re.compile(r"(?i)(token|password|passwd|secret|api[_-]?key)[\"']?\s*[:=]\s*\S+"), r"\1=<redacted>"),
+    (re.compile(r"(?i)gh[ops]_[A-Za-z0-9_]{20,}"), "<token-redacted>"),
+    (re.compile(r"(?i)(access[-_]?token|refresh[-_]?token)=[^&\s]+"), r"\1=<redacted>"),
+    (re.compile(r"(?i)&?code=[^&\s]+"), "&code=<redacted>"),
+)
+
+
+def _redact_secrets(text: str) -> str:
+    """Replace credential-like substrings with placeholders."""
+    for pattern, replacement in _SENSITIVE_PATTERNS:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+def summarize_error(exc: BaseException) -> str:
+    """Return a sanitized, truncated string describing an exception.
+
+    Credential-like content (authorization headers, tokens, passwords, API
+    keys, URL query secrets) is redacted before truncation.
+    """
+    message = str(exc)
+    message = _redact_secrets(message)
+    if len(message) > 300:
+        message = message[:300] + "..."
+    return message
 
 
 @dataclass(frozen=True)
@@ -55,6 +88,7 @@ class RequestError:
     request_id: int
     kind: str
     message: str
+    http_status: int | None = None
 
 
 def prompt_sha256(prompt: str) -> str:
@@ -147,6 +181,14 @@ def render_summary(
     total = success_count + failure_count
     success_rate = success_count / total if total else 0.0
 
+    # HTTP status distribution across failures (e.g. 429/500/503).
+    http_status_counts: dict[int, int] = {}
+    for error in errors:
+        if error.http_status is not None:
+            http_status_counts[error.http_status] = (
+                http_status_counts.get(error.http_status, 0) + 1
+            )
+
     summary: dict[str, Any] = {
         "schema_version": metadata.schema_version,
         "created_at": metadata.created_at,
@@ -156,6 +198,7 @@ def render_summary(
         "successes": success_count,
         "failures": failure_count,
         "timeouts": sum(1 for e in errors if e.kind == "timeout"),
+        "http_status_distribution": http_status_counts,
         "success_rate": round(success_rate, 6),
         "wall_seconds": round(wall_seconds, 6),
         "request_throughput": round(success_count / wall_seconds, 6)
@@ -169,14 +212,6 @@ def render_summary(
     if metric_definitions is not None:
         summary["metric_definitions"] = metric_definitions
     return summary
-
-
-def summarize_error(exc: BaseException) -> str:
-    """Return a sanitized, truncated string describing an exception."""
-    message = str(exc)
-    if len(message) > 300:
-        message = message[:300] + "..."
-    return message
 
 
 def build_metadata(
