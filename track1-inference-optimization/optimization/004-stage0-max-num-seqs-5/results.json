@@ -1,0 +1,36 @@
+{
+  "experiment": "stage0-max-num-seqs-5",
+  "challenge_revision": "009b80d686fe",
+  "source_config_commit": "e72f329c",
+  "hardware": "one physical Ascend 910C card",
+  "baseline_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=4",
+  "candidate_stage0": {
+    "max_num_seqs": 5,
+    "cudagraph_mode": "PIECEWISE",
+    "cudagraph_capture_sizes": [1, 2, 4, 5],
+    "max_cudagraph_capture_size": 5
+  },
+  "comparison_protocol": "paired same-host official Seed-TTS c1/c4/c8 runs; c8 control immediately preceded candidate",
+  "cells": {
+    "c1_32": {
+      "control": {"completed": 32, "failed": 0, "request_throughput": 0.48742551558906116, "mean_ttft_ms": 325.4486298537813, "mean_e2el_ms": 2051.1893524671905, "mean_audio_ttfp_ms": 1063.5667780879885, "mean_audio_rtf": 0.48266006029651565},
+      "candidate": {"completed": 32, "failed": 0, "request_throughput": 0.47724313036751825, "mean_ttft_ms": 324.6755381114781, "mean_e2el_ms": 2095.051100361161, "mean_audio_ttfp_ms": 1060.4387849452905, "mean_audio_rtf": 0.4941460385524096}
+    },
+    "c4_64": {
+      "control": {"completed": 64, "failed": 0, "request_throughput": 0.6701651534852641, "mean_ttft_ms": 459.5008580945432, "mean_e2el_ms": 5914.963567760424, "mean_audio_ttfp_ms": 2294.0121919091325, "mean_audio_rtf": 1.3261630616068927},
+      "candidate": {"completed": 64, "failed": 0, "request_throughput": 0.7453872083521181, "mean_ttft_ms": 482.0654762152117, "mean_e2el_ms": 5298.574583939626, "mean_audio_ttfp_ms": 2045.252300260472, "mean_audio_rtf": 1.1979579345526807}
+    },
+    "c8_128": {
+      "control": {"completed": 128, "failed": 0, "request_throughput": 0.7793134671548436, "mean_ttft_ms": 525.3452678880421, "mean_e2el_ms": 10106.239338419982, "mean_audio_ttfp_ms": 3664.7208081631106, "mean_audio_rtf": 2.2266494663205902},
+      "candidate": {"completed": 128, "failed": 0, "request_throughput": 0.7926129831309149, "mean_ttft_ms": 512.008927493298, "mean_e2el_ms": 9935.031746521418, "mean_audio_ttfp_ms": 3591.330115617893, "mean_audio_rtf": 2.1869289444799183}
+    }
+  },
+  "neutral_aggregate": {
+    "method": "geometric mean of per-cell improvement ratios, equal cell weights",
+    "core_metrics": ["mean_ttft_ms", "mean_audio_ttfp_ms", "mean_audio_rtf"],
+    "core_improvement_pct": 2.409248,
+    "all_five_metrics_improvement_pct": 2.856207
+  },
+  "candidate_total": {"completed": 224, "failed": 0, "total_audio_duration_s": 1022.96, "total_audio_frames": 24551040},
+  "decision": "promote_as_performance_candidate_pending_accuracy_gates"
+}

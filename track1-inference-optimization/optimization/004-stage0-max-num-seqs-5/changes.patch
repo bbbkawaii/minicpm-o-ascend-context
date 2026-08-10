@@ -1,0 +1,25 @@
+--- a/vllm_omni/deploy/minicpmo_4_5.yaml
++++ b/vllm_omni/deploy/minicpmo_4_5.yaml
+@@ -18,8 +18,8 @@ stages:
+ stages:
+   - stage_id: 0
+-    # Four-way concurrency matches the single-GPU memory shares below;
+-    # larger batches make Code2Wav activations OOM on one H100.
++    # Five-way concurrency relieves c8 Thinker admission queuing while keeping
++    # one-card activation headroom below known unsafe larger batches.
+-    max_num_seqs: 4
++    max_num_seqs: 5
+     # Leave headroom on the shared GPU for Talker KV + concurrent Code2Wav.
+     gpu_memory_utilization: 0.55
+     enforce_eager: false
+@@ -92,8 +92,10 @@ platforms:
+ platforms:
+   npu:
+     stages:
+       - stage_id: 0
+         max_num_batched_tokens: 8192
+         compilation_config:
+           cudagraph_mode: PIECEWISE
++          cudagraph_capture_sizes: [1, 2, 4, 5]
++          max_cudagraph_capture_size: 5
+       - stage_id: 1

@@ -8,11 +8,13 @@
 
 - 基线：官方 Seed-TTS c1/c4/c8 矩阵已在一张物理 Ascend 910C 上完成，见
   `reports/official-seed-tts-910c-20260810/`。
-- 当前最佳候选：只把 Code2Wav Stage 2 的 `max_num_seqs` 从 4 提到 6。
-  完整矩阵 224/224 成功、连续性 100%；c8 吞吐 +14.3%、E2E -12.6%、
-  音频 TTFP -19.0%、RTF -13.3%。见
-  `optimization/001-stage2-max-num-seqs-6/` 和
-  `reports/stage2-maxseq6-910c-20260811/`。
+- 当前最佳性能栈：Code2Wav Stage 2 的 `max_num_seqs=6`，再把 Thinker
+  Stage 0 从 4 提到 5，并显式捕获 Ascend 图形状 `[1, 2, 4, 5]`。新增
+  Stage0=5 的完整官方矩阵 224/224 成功、零失败；相对同机 Stage0=4 配对
+  对照，TTFT/音频 TTFP/RTF 三项中性几何汇总 +2.409%，五项等权汇总
+  +2.856%。c4 吞吐 +11.22%、E2E -10.42%、TTFP -10.84%、RTF -9.66%；
+  c8 五项均向好。见 `optimization/004-stage0-max-num-seqs-5/` 和
+  `reports/stage0-maxseq5-910c-20260811/`。
 - 已否决：首块/稳定 codec 分块 10/25 与 10/32。前者在 c8 吞吐回退
   19.7%，后者 c8 TTFP 回退 8.4%。原始证据已保留在实验 002/003。
 - 当前仍缺官方 Video-MME、Daily-Omni 与 TTS-Seed ASV/WER 正确性门禁；
@@ -68,8 +70,9 @@ bash -n baseline/*.sh                       # shell 语法通过
 - [x] **早期 E1 全阶段 max_num_seqs 实验** → 两卡文本条件下基线(4)为
   Pareto 最优（见 `reports/e1-maxnumseqs-20260807.md`）；该结论不再用于排除
   官方单卡音频的 Stage2 独立调参，Stage2=6 已通过正式矩阵。
-- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6** → 当前最佳性能候选，完整原始
-  结果见 `reports/stage2-maxseq6-910c-20260811/`。
+- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6 + Stage0=5** → 当前最佳性能
+  候选；新增 Stage0=5 的配对矩阵和原始结果见
+  `reports/stage0-maxseq5-910c-20260811/`。
 - [x] **E2 batched_tokens 实验** → 对 conc-8 TTFT 悬崖无影响,保留基线 8192;悬崖非批处理容量问题(见 `reports/e2-batchedtokens-20260807.md`)
 - [x] **E3 显存预算实验** → B3(0.90/0.58/0.32)候选(文本 +3.5% 吞吐/-9% TTFT),需音频复验;B1 否决、B2/B4 噪声;悬崖同样非显存问题(见 `reports/e3-memory-20260807.md`)
 - [ ] **B3 音频复验** + C1/C2 正确性门禁(若通过则采用 B3)
@@ -77,4 +80,3 @@ bash -n baseline/*.sh                       # shell 语法通过
 - [ ] M6 audio 矩阵(conc 1/2/4,需 ~1h 算力)
 - [ ] C1 视频 fixture 填充真实 URL + SHA256 + 许可证
 - [ ] C2 正式效果集（Daily-Omni / TTS-Seed / Video-MME）适配
-

@@ -1,0 +1,19 @@
+experiment_id: 004-stage0-max-num-seqs-5
+date: 2026-08-11
+challenge_revision: 009b80d686fe
+source_config_commit: e72f329c
+hardware: one physical Ascend 910C card
+baseline_stack: Stage2 max_num_seqs=6, Stage0 max_num_seqs=4
+candidate:
+  stage_id: 0
+  max_num_seqs: 5
+  cudagraph_capture_sizes: [1, 2, 4, 5]
+  max_cudagraph_capture_size: 5
+benchmark: official Seed-TTS serving matrix, c1/32 + c4/64 + c8/128
+comparison: paired same-host Stage0=4 controls
+candidate_requests: 224
+candidate_failed: 0
+neutral_core_improvement_pct: 2.409248
+neutral_all_five_improvement_pct: 2.856207
+status: promoted_performance_candidate_pending_accuracy_gates
+remaining_gate: Video-MME, Daily-Omni, and TTS-Seed ASV/WER accuracy
