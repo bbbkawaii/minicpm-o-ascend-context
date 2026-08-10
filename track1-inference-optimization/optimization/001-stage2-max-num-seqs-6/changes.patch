@@ -1,0 +1,10 @@
+--- a/vllm_omni/deploy/minicpmo_4_5.yaml
++++ b/vllm_omni/deploy/minicpmo_4_5.yaml
+@@ -73,6 +73,6 @@ stages:
+ 
+   - stage_id: 2
+-    max_num_seqs: 4
++    max_num_seqs: 6
+     gpu_memory_utilization: 0.18
+     enforce_eager: true
+     enable_chunked_prefill: false

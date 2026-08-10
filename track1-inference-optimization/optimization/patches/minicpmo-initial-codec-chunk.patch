@@ -1,0 +1,110 @@
+--- a/vllm_omni/model_executor/stage_input_processors/minicpmo_4_5_omni.py
++++ b/vllm_omni/model_executor/stage_input_processors/minicpmo_4_5_omni.py
+@@ -125,20 +125,25 @@
+         return None
+ 
+ 
+-def _codec_config(transfer_manager: Any) -> tuple[int, int]:
++def _codec_config(transfer_manager: Any) -> tuple[int, int, int | None]:
+     connector = getattr(transfer_manager, "connector", None)
+     raw_config = getattr(connector, "config", {}) or {}
+     config = raw_config.get("extra", raw_config) if isinstance(raw_config, dict) else {}
+     config = config if isinstance(config, dict) else {}
+     chunk_frames = int(config.get("codec_chunk_frames", 25))
+     left_context_frames = int(config.get("codec_left_context_frames", 3))
+-    if chunk_frames <= 0 or left_context_frames < 0:
++    initial_chunk_raw = config.get("initial_codec_chunk_frames")
++    initial_chunk_frames = int(initial_chunk_raw) if initial_chunk_raw is not None else None
++    if chunk_frames <= 0 or left_context_frames < 0 or (
++        initial_chunk_frames is not None and initial_chunk_frames <= 0
++    ):
+         raise ValueError(
+             "Invalid MiniCPM-o codec chunk config: "
+             f"codec_chunk_frames={chunk_frames}, "
+-            f"codec_left_context_frames={left_context_frames}"
++            f"codec_left_context_frames={left_context_frames}, "
++            f"initial_codec_chunk_frames={initial_chunk_frames}"
+         )
+-    return chunk_frames, left_context_frames
++    return chunk_frames, left_context_frames, initial_chunk_frames
+ 
+ 
+ def _codec_scalars(value: Any) -> list[int]:
+@@ -289,19 +294,24 @@
+         state["segment_text_recorded"] = True
+     request_finished = getattr(request, "is_finished", None)
+     finished = bool(is_finished or (callable(request_finished) and request_finished()))
+-    chunk_frames, left_context_frames = _codec_config(transfer_manager)
++    chunk_frames, left_context_frames, initial_chunk_frames = _codec_config(transfer_manager)
++    codec_start = int(state["codec_end"])
++    target_chunk_frames = (
++        initial_chunk_frames
++        if codec_start == 0 and initial_chunk_frames is not None
++        else chunk_frames
++    )
+     flush_pending = finished
+     last_chunk = bool(flush_pending and (not native_duplex or turn_end))
+-    if not flush_pending and len(pending) < chunk_frames:
++    if not flush_pending and len(pending) < target_chunk_frames:
+         return None
+ 
+     hold_short_unit = (
+         native_duplex and flush_pending and not last_chunk and 0 < len(pending) < _MINICPMO45_MIN_STREAM_BODY_FRAMES
+     )
+-    new_token_count = 0 if hold_short_unit else (len(pending) if flush_pending else chunk_frames)
++    new_token_count = 0 if hold_short_unit else (len(pending) if flush_pending else target_chunk_frames)
+     new_codes = pending[:new_token_count]
+     del pending[:new_token_count]
+-    codec_start = int(state["codec_end"])
+     codec_end = codec_start + new_token_count
+ 
+     if new_token_count:
+@@ -395,7 +405,7 @@
+     internal_id = getattr(request, "request_id", None)
+     request_id = str(external_id if external_id is not None else internal_id)
+     codes = _extract_codec_delta(pooling_output, request_id)
+-    _, left_context_frames = _codec_config(transfer_manager)
++    _, left_context_frames, _ = _codec_config(transfer_manager)
+     context = [_MINICPMO45_SILENCE_CODE] * left_context_frames if codes else []
+     output_codes = [*context, *codes]
+ 
+--- a/tests/model_executor/stage_input_processors/test_minicpmo_4_5_async_chunk.py
++++ b/tests/model_executor/stage_input_processors/test_minicpmo_4_5_async_chunk.py
+@@ -17,9 +17,12 @@
+ pytestmark = [pytest.mark.core_model, pytest.mark.cpu]
+ 
+ 
+-def _manager():
++def _manager(initial_codec_chunk_frames: int | None = None):
++    extra = {"codec_chunk_frames": 25, "codec_left_context_frames": 3}
++    if initial_codec_chunk_frames is not None:
++        extra["initial_codec_chunk_frames"] = initial_codec_chunk_frames
+     return SimpleNamespace(
+-        connector=SimpleNamespace(config={"extra": {"codec_chunk_frames": 25, "codec_left_context_frames": 3}}),
++        connector=SimpleNamespace(config={"extra": extra}),
+         code_prompt_token_ids=defaultdict(list),
+         request_payload={},
+         put_req_chunk=defaultdict(int),
+@@ -103,6 +106,22 @@
+     assert steady.meta.chunk_seq == 1
+ 
+ 
++def test_smaller_initial_chunk_returns_to_steady_chunk_size() -> None:
++    manager = _manager(initial_codec_chunk_frames=7)
++    request = _request("req")
++
++    assert tts2code2wav_async_chunk(manager, _delta(*range(6)), request, False) is None
++    first = tts2code2wav_async_chunk(manager, _delta(6), request, False)
++    assert first is not None
++    assert _codes(first) == [4218, 4218, 4218, *range(7)]
++
++    assert tts2code2wav_async_chunk(manager, _delta(*range(7, 31)), request, False) is None
++    steady = tts2code2wav_async_chunk(manager, _delta(31), request, False)
++    assert steady is not None
++    assert _codes(steady) == [4, 5, 6, *range(7, 32)]
++    assert steady.meta.chunk_seq == 1
++
++
+ def test_exact_boundary_final_flushes_held_lookahead() -> None:
+     manager = _manager()
+     request = _request("req")

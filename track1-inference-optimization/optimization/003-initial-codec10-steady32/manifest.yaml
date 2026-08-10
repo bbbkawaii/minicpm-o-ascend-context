@@ -1,0 +1,8 @@
+experiment_id: 003-initial-codec10-steady32
+date: 2026-08-11
+challenge_revision: 009b80d686fe
+hardware: one physical Ascend 910C card
+baseline: stage2-max-num-seqs-6
+variables: initial_codec_chunk_frames=10, codec_chunk_frames=32
+status: rejected
+reason: c8 TTFP +8.4%, RTF +3.4%

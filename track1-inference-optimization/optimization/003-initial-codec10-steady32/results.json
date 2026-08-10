@@ -1,0 +1,23 @@
+{
+  "experiment": "initial-codec-chunk-10-steady-32",
+  "challenge_revision": "009b80d686fe",
+  "comparison_baseline": "stage2-max-num-seqs-6",
+  "configuration": {
+    "initial_codec_chunk_frames": 10,
+    "codec_chunk_frames": 32,
+    "codec_left_context_frames": 3,
+    "stage2_max_num_seqs": 6
+  },
+  "c8_128": {
+    "completed": 128,
+    "failed": 0,
+    "request_throughput": 0.7837410746050972,
+    "mean_ttft_ms": 522.1232559051714,
+    "mean_e2el_ms": 10051.052744005574,
+    "mean_audio_ttfp_ms": 3683.5667253180873,
+    "mean_audio_rtf": 2.2550164873931875,
+    "audio_throughput": 3.619414250160665
+  },
+  "streaming_continuity_ok_rate": 1.0,
+  "decision": "reject"
+}

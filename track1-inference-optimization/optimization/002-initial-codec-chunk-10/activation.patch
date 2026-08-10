@@ -1,0 +1,9 @@
+--- a/vllm_omni/deploy/minicpmo_4_5.yaml
++++ b/vllm_omni/deploy/minicpmo_4_5.yaml
+@@ -12,5 +12,6 @@ connectors:
+       connector_get_sleep_s: 0.01
+       connector_get_max_wait_first_chunk: 3000
+       connector_get_max_wait: 300
+       codec_chunk_frames: 25
++      initial_codec_chunk_frames: 10
+       codec_left_context_frames: 3

@@ -1,0 +1,10 @@
+experiment_id: 001-stage2-max-num-seqs-6
+date: 2026-08-11
+challenge_revision: 009b80d686fe
+hardware: one physical Ascend 910C card
+benchmark: official Seed-TTS serving matrix
+unique_variable: stage 2 max_num_seqs, 4 -> 6
+baseline: reports/official-seed-tts-910c-20260810
+candidate: reports/stage2-maxseq6-910c-20260811
+status: promoted_performance_candidate
+remaining_gate: Video-MME, Daily-Omni, and TTS-Seed ASV/WER accuracy

@@ -1,0 +1,81 @@
+{
+  "experiment": "stage2-max-num-seqs-6",
+  "challenge_revision": "009b80d686fe",
+  "hardware": "one physical Ascend 910C card",
+  "unique_variable": {
+    "stage_id": 2,
+    "parameter": "max_num_seqs",
+    "baseline": 4,
+    "candidate": 6
+  },
+  "baseline_source": "reports/official-seed-tts-910c-20260810",
+  "candidate_source": "reports/stage2-maxseq6-910c-20260811",
+  "cells": {
+    "c1_32": {
+      "baseline_runs": 2,
+      "baseline": {
+        "request_throughput": 0.4567087910596739,
+        "mean_ttft_ms": 327.01564191665966,
+        "mean_e2el_ms": 2190.08662358101,
+        "mean_audio_ttfp_ms": 1069.8713821766432,
+        "mean_audio_rtf": 0.5127977222043865,
+        "audio_throughput": 1.9838288111654583
+      },
+      "candidate": {
+        "completed": 32,
+        "failed": 0,
+        "request_throughput": 0.47535003102642615,
+        "mean_ttft_ms": 323.80811430630274,
+        "mean_e2el_ms": 2103.4008957794867,
+        "mean_audio_ttfp_ms": 1062.2712605982088,
+        "mean_audio_rtf": 0.49631932468554707,
+        "audio_throughput": 2.064801697271039
+      }
+    },
+    "c4_64": {
+      "baseline_runs": 1,
+      "baseline": {
+        "request_throughput": 0.6788826809768412,
+        "mean_ttft_ms": 476.4635827305028,
+        "mean_e2el_ms": 5825.259788747644,
+        "mean_audio_ttfp_ms": 2253.831523557892,
+        "mean_audio_rtf": 1.301923402451516,
+        "audio_throughput": 3.0842488800129115
+      },
+      "candidate": {
+        "completed": 64,
+        "failed": 0,
+        "request_throughput": 0.7226467611854398,
+        "mean_ttft_ms": 477.9010355123319,
+        "mean_e2el_ms": 5475.076999253361,
+        "mean_audio_ttfp_ms": 2242.019830024219,
+        "mean_audio_rtf": 1.223947580484583,
+        "audio_throughput": 3.2817196042333783
+      }
+    },
+    "c8_128": {
+      "baseline_runs": 1,
+      "baseline": {
+        "request_throughput": 0.6913980182896722,
+        "mean_ttft_ms": 494.64230341254734,
+        "mean_e2el_ms": 11410.624178904982,
+        "mean_audio_ttfp_ms": 4198.126728704665,
+        "mean_audio_rtf": 2.514224305814829,
+        "audio_throughput": 3.205278000414777
+      },
+      "candidate": {
+        "completed": 128,
+        "failed": 0,
+        "request_throughput": 0.7899351519955162,
+        "mean_ttft_ms": 523.2433675337234,
+        "mean_e2el_ms": 9970.337517712323,
+        "mean_audio_ttfp_ms": 3399.0093408865505,
+        "mean_audio_rtf": 2.1808610954148255,
+        "audio_throughput": 3.6692487810191725
+      }
+    }
+  },
+  "streaming_continuity_ok_rate": 1.0,
+  "service_oom": false,
+  "decision": "promote_as_performance_candidate_pending_accuracy_gates"
+}

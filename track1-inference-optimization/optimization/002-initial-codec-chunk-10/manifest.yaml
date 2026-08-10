@@ -1,0 +1,9 @@
+experiment_id: 002-initial-codec-chunk-10-steady-25
+date: 2026-08-11
+challenge_revision: 009b80d686fe
+hardware: one physical Ascend 910C card
+baseline: stage2-max-num-seqs-6
+unique_variable: initial_codec_chunk_frames, absent -> 10
+steady_codec_chunk_frames: 25
+status: rejected
+reason: c8 throughput -19.7%, E2E +24.6%, TTFP +10.4%, RTF +25.4%
