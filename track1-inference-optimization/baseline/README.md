@@ -69,6 +69,24 @@ python3 baseline/benchmark_text.py \
 
 脚本记录首个文本 delta 的 TTFT、请求 E2E 和请求吞吐。正式比赛的 chunk latency、音频 TTFP、Daily-Omni、TTS-Seed、Video-MME 必须使用 starter kit 的最终口径补齐。
 
+## 5. 官方 Seed-TTS 性能基线
+
+服务启动并完成预热后，使用 vLLM-Omni 官方 runner 采集比赛同口径的
+TTFT、E2E、音频 TTFP 与 RTF。`DATASET_PATH` 必须指向包含
+`en/meta.lst` 的 `seedtts_testset` 目录：
+
+```bash
+DATASET_PATH=/datasets/seed-tts-eval/seedtts_testset \
+TOKENIZER=/models/OpenBMB/MiniCPM-o-4_5 \
+NUM_PROMPTS=32 NUM_WARMUPS=3 MAX_CONCURRENCY=1 \
+bash baseline/run_official_seed_tts.sh
+```
+
+比赛完整性能矩阵为：并发 1/32 条、并发 4/64 条、并发 8/128 条。
+脚本会保存原始 JSON、完整 stdout、实际命令和校验状态；只有 JSON 中
+`completed` 等于请求数且 `failed=0` 才返回成功。需要同时评估 Seed-TTS
+ASV/WER 时，额外设置 `SEED_TTS_WER_EVAL=1`，并确保评测模型与依赖已准备好。
+
 ## 基线纪律
 
 - 每次运行保存环境、启动命令、模型 revision 和原始 JSON。

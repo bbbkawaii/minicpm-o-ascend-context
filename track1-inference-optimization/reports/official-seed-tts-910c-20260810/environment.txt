@@ -1,0 +1,19 @@
+host=bcc80d4c7d2b
+kernel=5.10.0-216.0.0.115.oe2203sp4.aarch64
+architecture=aarch64
+accelerator=single physical Ascend 910C card (two chips, 64 GiB HBM per chip)
+npu_smi=25.5.1
+cann=9.0.0
+challenge_branch=minicpm-challenge
+challenge_commit=009b80d686febcf683fdbc2bcdf3ad752884641e
+competition_repo_commit=1ce60843c63a81f7ea658007c0da70a9a9f7bacd
+vllm=0.1.dev1+ge5588e49b.empty
+vllm_omni=0.25.0rc2.dev5+g3f4abedbd.cpu
+vllm_ascend=0.19.1rc2.dev1014+g8092d3f66
+torch=2.10.0+cpu
+torch_npu=2.10.0
+step_audio2=1.0.0
+stepaudio2_minicpmo=0.1.1
+deploy_config_sha256=b3c35aad87ddeba64781b3833b64c4a7132eaf88fc29002bb018e6b84fdb76ed
+model_config_sha256=b0c03cf9f0cfc1178ade50e4ba62727ca7a77aa6a6a71eda6668d8f289e96c1d
+

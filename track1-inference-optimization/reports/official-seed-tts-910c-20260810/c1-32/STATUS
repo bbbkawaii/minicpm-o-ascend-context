@@ -1,0 +1,4 @@
+benchmark_completed=32
+benchmark_failed=0
+client_process_exit_code=134
+client_exit_note=allocator teardown abort after result save

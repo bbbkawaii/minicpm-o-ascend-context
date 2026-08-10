@@ -1,0 +1,133 @@
+INFO 08-10 16:24:13 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 08-10 16:24:13 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 08-10 16:24:13 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 08-10 16:24:13 [__init__.py:237] Platform plugin ascend is activated
+INFO 08-10 16:24:13 [platform.py:62] Breakable cudagraph is force disabled on Ascend because DeepSeek V4 PIECEWISE cudagraph is not supported yet.
+/workspace/user_data/vllm-omni-minicpm-challenge/vllm_omni/version.py:55: RuntimeWarning: vLLM and vLLM-Omni appear to have mismatched major/minor versions:
+ --> vLLM-Omni version 0.25.0rc2.dev5+g3f4abedbd.cpu
+ --> vLLM version 0.1.dev1+ge5588e49b
+This will likely cause compatibility issues.
+  warn_if_misaligned_vllm_version()
+INFO 08-10 16:24:22 [patch.py:252] NVFP4 W4A4 weight_scale NaN-clamp: installed.
+INFO 08-10 16:24:22 [patch.py:481] [cumem-cuda] CuMemAllocator._python_free_callback patched: asleep guard extended to all platforms.
+2026-08-10 16:24:29,032 - 40295 - ServiceProfiler - INFO - VLLM_USE_V1 not set, auto-detected via vLLM 0.1.dev1+ge5588e49b.empty: default 0
+INFO 08-10 16:24:29 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+INFO 08-10 16:24:29 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+TrackingNamespace(subparser='bench', bench_type='serve', dispatch_function=<function OmniBenchmarkServingSubcommand.cmd at 0xfffeac231f80>, omni=True, trust_remote_code=True, seed=0, num_prompts=128, dataset_name='seed-tts', no_stream=False, dataset_path='/workspace/user_data/datasets/seed-tts-eval/seedtts_testset', no_oversample=True, skip_chat_template=False, enable_multimodal_chat=False, disable_shuffle=False, custom_output_len=256, custom_ensure_client_side_data=False, spec_bench_output_len=256, spec_bench_category=None, sonnet_input_len=550, sonnet_output_len=150, sonnet_prefix_len=200, sharegpt_output_len=None, timed_trace_chunk_hash_size=16, timed_trace_sec_multiplier=1, timed_trace_label_timestamp='timestamp', timed_trace_label_input_length='input_length', timed_trace_label_output_length='output_length', timed_trace_label_hash_ids='hash_ids', blazedit_min_distance=0.0, blazedit_max_distance=1.0, asr_max_audio_len_sec=inf, asr_min_audio_len_sec=0.0, random_input_len=1024, random_output_len=128, random_range_ratio='0.0', random_prefix_len=0, random_batch_size=1, no_reranker=False, random_mm_base_items_per_request=1, random_mm_num_mm_items_range_ratio=0.0, random_mm_limit_mm_per_prompt={'image': 255, 'video': 1}, random_mm_bucket_config={(256, 256, 1): 0.5, (720, 1280, 1): 0.5, (720, 1280, 16): 0.0}, hf_subset=None, hf_split=None, hf_name=None, hf_output_len=None, bfcl_categories=None, prefix_repetition_prefix_len=256, prefix_repetition_suffix_len=256, prefix_repetition_num_prefixes=10, prefix_repetition_output_len=128, speed_bench_dataset_subset='qualitative', speed_bench_output_len=4096, speed_bench_category=None, label=None, backend='openai-chat-omni', base_url=None, host='127.0.0.1', port=8091, endpoint='/v1/chat/completions', header=None, max_concurrency=8, model='openbmb/MiniCPM-o-4_5', input_len=None, output_len=None, tokenizer='/workspace/shared_assets/models/OpenBMB/MiniCPM-o-4_5', tokenizer_mode='auto', use_beam_search=False, logprobs=None, request_rate=inf, burstiness=1.0, disable_tqdm=True, num_warmups=3, profile=False, save_result=True, save_detailed=True, append_result=False, metadata=None, result_dir='/workspace/user_data/baseline/minicpm-challenge-009b80d6/matrix/c8-128-r1', result_filename='benchmark.json', ignore_eos=False, self_timed=None, percentile_metrics='ttft,e2el,audio_ttfp,audio_rtf,audio_duration', metric_percentiles='50,90,99', goodput=None, request_id_prefix='bench-338bf236-', top_p=None, top_k=None, min_p=None, temperature=None, frequency_penalty=None, presence_penalty=None, repetition_penalty=None, served_model_name='openbmb/MiniCPM-o-4_5', lora_modules=None, lora_assignment='random', ramp_up_strategy=None, ramp_up_start_rps=None, ramp_up_end_rps=None, ready_check_timeout_sec=0, chat_template_kwargs=None, extra_body={'modalities': ['text', 'audio'], 'chat_template_kwargs': {'enable_thinking': False, 'use_tts_template': True}, 'return_stage_metrics': True}, skip_tokenizer_init=False, insecure=False, plot_timeline=False, timeline_itl_thresholds='25,50', plot_dataset_stats=False, daily_omni_qa_json=None, daily_omni_video_dir=None, daily_omni_inline_local_video=False, daily_omni_input_mode='all', daily_omni_pack_mode='qwen', daily_omni_save_eval_items=False, videomme_parquet=None, videomme_video_dir=None, videomme_subtitle_dir=None, videomme_pack_mode='minicpm-frames', videomme_max_frames=None, videomme_duration='all', videomme_use_subtitle=False, videomme_inline_local_video=False, videomme_save_eval_items=False, seed_tts_locale='en', seed_tts_turns_per_session=1, seed_tts_root='/workspace/user_data/datasets/seed-tts-eval/seedtts_testset', seed_tts_file_ref_audio=False, seed_tts_inline_ref_audio=False, seed_tts_system_prompt=None, seed_tts_wer_eval=False, seed_tts_wer_save_items=False, print_stage=True, bot_task='think')
+INFO 08-10 16:24:30 [seed_tts_dataset.py:210] Loaded Seed-TTS: root=/workspace/user_data/datasets/seed-tts-eval/seedtts_testset locale=en rows=1088 inline_ref_audio=True
+INFO 08-10 16:24:34 [seed_tts_dataset.py:283] Seed-TTS: built 128 sessions (asked 128, turns_per_session=1)
+INFO 08-10 16:24:34 [datasets.py:309] Skipping oversampling. Total samples: 128.
+WARNING: vllm bench serve no longer sets temperature==0 (greedy) in requests by default. The default will be determined on the server side and can be model/API specific. For the old behavior, include --temperature=0.
+Starting initial single prompt test run...
+Skipping endpoint ready check.
+Warming up with 3 requests...
+Warmup run completed.
+Starting main benchmark run...
+Traffic request rate: inf
+Burstiness factor: 1.0 (Poisson process)
+Maximum request concurrency: 8
+tip: install termplotlib and gnuplot to plot the metrics
+============ Serving Benchmark Result ============
+Successful requests:                     128       
+Failed requests:                         0         
+Maximum request concurrency:             8         
+Benchmark duration (s):                  185.13    
+Request throughput (req/s):              0.69      
+Peak concurrent requests:                12.00     
+----------------End-to-end Latency----------------
+Mean E2EL (ms):                          11410.62  
+Median E2EL (ms):                        11480.69  
+P50 E2EL (ms):                           11480.69  
+P90 E2EL (ms):                           14510.31  
+P99 E2EL (ms):                           17408.93  
+================== Text Result ===================
+Total input tokens:                      19250     
+Total generated tokens:                  1970      
+Output token throughput (tok/s):         10.64     
+Peak output token throughput (tok/s):    117.00    
+Peak concurrent requests:                12.00     
+Total Token throughput (tok/s):          114.62    
+---------------Time to First Token----------------
+Mean TTFT (ms):                          494.64    
+Median TTFT (ms):                        482.14    
+P50 TTFT (ms):                           482.14    
+P90 TTFT (ms):                           629.35    
+P99 TTFT (ms):                           865.03    
+================== Audio Result ==================
+Total audio duration generated(s):       593.40    
+Total audio frames generated:            14241600  
+Audio throughput(audio duration/s):      3.21      
+Streaming continuity OK rate:            100.00%   
+---------------Time to First Packet---------------
+Mean AUDIO_TTFP (ms):                    4198.13   
+Median AUDIO_TTFP (ms):                  4109.63   
+P50 AUDIO_TTFP (ms):                     4109.63   
+P90 AUDIO_TTFP (ms):                     5062.70   
+P99 AUDIO_TTFP (ms):                     6563.40   
+-----------------Real Time Factor-----------------
+Mean AUDIO_RTF:                          2.51      
+Median AUDIO_RTF:                        2.46      
+P50 AUDIO_RTF:                           2.46      
+P90 AUDIO_RTF:                           3.01      
+P99 AUDIO_RTF:                           3.45      
+------------------Audio Duration------------------
+Mean AUDIO_DURATION (s):                 4.64      
+Median AUDIO_DURATION (s):               4.64      
+P50 AUDIO_DURATION (s):                  4.64      
+P90 AUDIO_DURATION (s):                  6.08      
+P99 AUDIO_DURATION (s):                  7.19      
+
+============= Stage Benchmark Result =============
+================= Stage 0 (llm) ==================
+-------------------Stage Timing-------------------
+Mean stage_gen_time (ms):                480.85    
+Median stage_gen_time (ms):              468.10    
+P50 stage_gen_time (ms):                 468.10    
+P90 stage_gen_time (ms):                 614.12    
+P99 stage_gen_time (ms):                 828.59    
+================== Text Result ===================
+Stage generated tokens:                  1970      
+-----------Serving Time to First Token------------
+Mean Serving TTFT (ms):                  488.75    
+Median Serving TTFT (ms):                474.92    
+P50 Serving TTFT (ms):                   474.92    
+P90 Serving TTFT (ms):                   621.81    
+P99 Serving TTFT (ms):                   853.21    
+---------------Time to First Token----------------
+Mean TTFT (ms):                          111.28    
+Median TTFT (ms):                        92.25     
+P50 TTFT (ms):                           92.25     
+P90 TTFT (ms):                           142.88    
+P99 TTFT (ms):                           470.08    
+================= Stage 1 (tts) ==================
+-------------------Stage Timing-------------------
+Mean stage_gen_time (ms):                1975.36   
+Median stage_gen_time (ms):              1887.40   
+P50 stage_gen_time (ms):                 1887.40   
+P90 stage_gen_time (ms):                 2828.28   
+P99 stage_gen_time (ms):                 3756.21   
+============= Internal Stream Result =============
+=============== Stage 2 (code2wav) ===============
+-------------------Stage Timing-------------------
+Mean stage_gen_time (ms):                11388.85  
+Median stage_gen_time (ms):              11463.29  
+P50 stage_gen_time (ms):                 11463.29  
+P90 stage_gen_time (ms):                 14487.36  
+P99 stage_gen_time (ms):                 17388.16  
+================== Audio Result ==================
+Stage audio duration generated(s):       593.40    
+Stage audio frames generated:            14241600  
+-----------Serving Time to First Packet-----------
+Mean Serving AUDIO_TTFP (ms):            4187.90   
+Median Serving AUDIO_TTFP (ms):          4099.30   
+P50 Serving AUDIO_TTFP (ms):             4099.30   
+P90 Serving AUDIO_TTFP (ms):             5045.78   
+P99 Serving AUDIO_TTFP (ms):             6548.10   
+------------------Audio Duration------------------
+Mean AUDIO_DURATION:                     4.64      
+Median AUDIO_DURATION:                   4.64      
+P50 AUDIO_DURATION:                      4.64      
+P90 AUDIO_DURATION:                      6.08      
+P99 AUDIO_DURATION:                      7.19      
+==================================================
+corrupted size vs. prev_size
