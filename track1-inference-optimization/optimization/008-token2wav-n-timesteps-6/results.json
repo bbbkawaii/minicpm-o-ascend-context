@@ -1,0 +1,40 @@
+{
+  "experiment": "token2wav-n-timesteps-6",
+  "challenge_revision": "009b80d686fe",
+  "candidate_source_config_commit": "7a5a95a8",
+  "hardware": "one physical Ascend 910C card",
+  "baseline_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=7",
+  "candidate_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=6",
+  "matched_c1_32": {
+    "control": {"completed": 32, "failed": 0, "request_throughput": 0.5037472974349504, "mean_ttft_ms": 319.3097059556749, "mean_e2el_ms": 1984.7464557096828, "mean_audio_ttfp_ms": 966.2389362929389, "mean_audio_rtf": 0.4631945800772897},
+    "candidate": {"completed": 32, "failed": 0, "request_throughput": 0.5415392509776682, "mean_ttft_ms": 326.61550675402395, "mean_e2el_ms": 1846.1075118393637, "mean_audio_ttfp_ms": 914.2561209155247, "mean_audio_rtf": 0.4303524442830141},
+    "candidate_minus_control_pct": {"request_throughput": 7.502165021, "mean_ttft_ms": 2.287998348, "mean_e2el_ms": -6.985221889, "mean_audio_ttfp_ms": -5.379913128, "mean_audio_rtf": -7.090354077},
+    "input_lens_equal": true,
+    "output_lens_equal": true,
+    "total_audio_duration_equal": true
+  },
+  "candidate_c4_64": {"completed": 64, "failed": 0, "request_throughput": 1.04898908684761, "mean_ttft_ms": 479.77717519097496, "mean_e2el_ms": 3744.608652385068, "mean_audio_ttfp_ms": 1684.547284457949, "mean_audio_rtf": 0.8341574985891507},
+  "matched_c8_128": {
+    "control": {"completed": 128, "failed": 0, "request_throughput": 1.0311626033537895, "mean_ttft_ms": 519.9109103268711, "mean_e2el_ms": 7629.285002200049, "mean_audio_ttfp_ms": 3114.3035764835076, "mean_audio_rtf": 1.6952971581374592},
+    "candidate": {"completed": 128, "failed": 0, "request_throughput": 1.177298671987571, "mean_ttft_ms": 535.6105989194475, "mean_e2el_ms": 6696.743645821698, "mean_audio_ttfp_ms": 2862.3222507812898, "mean_audio_rtf": 1.496871567110822},
+    "candidate_minus_control_pct": {"request_throughput": 14.171971342, "mean_ttft_ms": 3.019688235, "mean_e2el_ms": -12.223181545, "mean_audio_ttfp_ms": -8.091097079, "mean_audio_rtf": -11.70447258},
+    "input_lens_equal": true,
+    "output_lens_equal": true
+  },
+  "quality_gate": {
+    "suite": "Seed-TTS English WER",
+    "requested_prompts": 2000,
+    "evaluated_unique_items": 1088,
+    "completed": 1088,
+    "failed": 0,
+    "mean_wer": 0.0342209005323932,
+    "median_wer": 0.0,
+    "max_mean_wer": 0.05,
+    "request_failures": 0,
+    "no_pcm": 0,
+    "asr_failures": 0,
+    "gate_pass": true
+  },
+  "official_composite_score": null,
+  "decision": "promote: throughput/E2E/TTFP/RTF improve at c1 and c8, TTFT trades off by 2.29%/3.02%, and full Seed-TTS WER passes."
+}

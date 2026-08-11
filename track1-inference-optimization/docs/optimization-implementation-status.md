@@ -10,14 +10,14 @@
   `reports/official-seed-tts-910c-20260810/`。
 - 当前最佳性能栈：Code2Wav Stage 2 `max_num_seqs=6` + Thinker Stage 0
   `max_num_seqs=5`（Ascend 图形状 `[1, 2, 4, 5]`）+ Code2Wav
-  `token2wav_n_timesteps=7`。最新源码提交为 `e3266c5a`。七步相对八步的
-  c1/32 对比为：吞吐 +6.07%、E2E -5.72%、音频 TTFP -2.57%、RTF
-  -5.65%，TTFT +0.83% 变慢；c8/128 对比为：吞吐 +11.31%、TTFT
-  -2.26%、E2E -10.50%、音频 TTFP -5.71%、RTF -10.46%。两组均全部
+  `token2wav_n_timesteps=6`。最新源码提交为 `7a5a95a8`。六步相对七步的
+  c1/32 对比为：吞吐 +7.50%、E2E -6.99%、音频 TTFP -5.38%、RTF
+  -7.09%，TTFT +2.29% 变慢；c8/128 对比为：吞吐 +14.17%、E2E
+  -12.22%、音频 TTFP -8.09%、RTF -11.70%，TTFT +3.02% 变慢。两组均全部
   成功且输入/输出长度一致；详见
-  `optimization/007-token2wav-n-timesteps-7/` 和
-  `reports/token2wav-steps7-910c-20260811/`。
-- TTS-Seed 英文 WER 门禁已通过：1,088/1,088 条完成、均值 `0.033366`
+  `optimization/008-token2wav-n-timesteps-6/` 和
+  `reports/token2wav-steps6-910c-20260811/`。
+- TTS-Seed 英文 WER 门禁已通过：1,088/1,088 条完成、均值 `0.034221`
   <= 源码阈值 `0.05`，请求/PCM/ASR 失败均为 0。没有发布的官方综合加权分，
   因此只以原始配对性能结果和明确的 WER 门禁作接受依据。
 - 已否决：首块/稳定 codec 分块 10/25 与 10/32。前者在 c8 吞吐回退
@@ -78,11 +78,11 @@ bash -n baseline/*.sh                       # shell 语法通过
 - [x] **早期 E1 全阶段 max_num_seqs 实验** → 两卡文本条件下基线(4)为
   Pareto 最优（见 `reports/e1-maxnumseqs-20260807.md`）；该结论不再用于排除
   官方单卡音频的 Stage2 独立调参，Stage2=6 已通过正式矩阵。
-- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6 + Stage0=5 + token2wav=7**
+- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6 + Stage0=5 + token2wav=6**
   → 当前最佳性能候选；最新 c1/c8 配对与原始结果见
-  `reports/token2wav-steps7-910c-20260811/`。
-- [x] **TTS-Seed 英文 WER 门禁** → `0.033366 <= 0.05`，1,088/1,088
-  完成、零失败；见 `optimization/007-token2wav-n-timesteps-7/`。
+  `reports/token2wav-steps6-910c-20260811/`。
+- [x] **TTS-Seed 英文 WER 门禁** → `0.034221 <= 0.05`，1,088/1,088
+  完成、零失败；见 `optimization/008-token2wav-n-timesteps-6/`。
 - [x] **E2 batched_tokens 实验** → 对 conc-8 TTFT 悬崖无影响,保留基线 8192;悬崖非批处理容量问题(见 `reports/e2-batchedtokens-20260807.md`)
 - [x] **E3 显存预算实验** → B3(0.90/0.58/0.32)候选(文本 +3.5% 吞吐/-9% TTFT),需音频复验;B1 否决、B2/B4 噪声;悬崖同样非显存问题(见 `reports/e3-memory-20260807.md`)
 - [ ] **B3 音频复验** + C1/剩余正确性门禁(若通过则采用 B3)

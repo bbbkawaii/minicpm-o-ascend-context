@@ -1,0 +1,7 @@
+diff --git a/vllm_omni/deploy/minicpmo_4_5.yaml b/vllm_omni/deploy/minicpmo_4_5.yaml
+index 89f025b7..3f99184a 100644
+--- a/vllm_omni/deploy/minicpmo_4_5.yaml
++++ b/vllm_omni/deploy/minicpmo_4_5.yaml
+@@ -17 +17 @@ connectors:
+-      token2wav_n_timesteps: 7
++      token2wav_n_timesteps: 6
