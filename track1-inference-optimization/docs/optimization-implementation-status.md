@@ -24,6 +24,10 @@
 - 已否决：Talker Stage 1 `max_num_seqs=5`。c8 吞吐 -0.21%、E2E
   +0.21%、音频 TTFP +0.87%、RTF +0.08%；保留 Stage 1=4。证据见
   `reports/stage1-max-num-seqs-5-910c-20260811/`。
+- 已否决边界扫描：Stage2=7/8、Stage0=6、Token2Wav 4 步/FP16、codec
+  left-context=2、chunk=32 均未形成可重复净收益；保留 `0dced5d4`。证据见
+  `optimization/010-rejected-boundary-sweep/` 和
+  `reports/rejected-sweep-910c-20260811/`。
 - 当前仍缺重新运行的官方 Video-MME 与 Daily-Omni 最终验证；性能结果不能
   替代这些门禁。
 

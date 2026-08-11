@@ -1,0 +1,25 @@
+{
+  "experiment": "rejected-boundary-sweep",
+  "baseline_source_config_commit": "0dced5d4",
+  "hardware": "one physical Ascend 910C card",
+  "delta_convention": "positive means improvement; throughput uses candidate/control, latency and RTF use control/candidate",
+  "baseline": {
+    "c1_32": {"request_throughput": 0.5481247857990872, "mean_ttft_ms": 320.2676806249656, "mean_e2el_ms": 1824.06239467673, "mean_audio_ttfp_ms": 879.204411583487, "mean_audio_rtf": 0.4247958475251079},
+    "c8_128": {"request_throughput": 1.2831440950370339, "mean_ttft_ms": 532.8452318353811, "mean_e2el_ms": 6150.347981900268, "mean_audio_ttfp_ms": 2935.271859423665, "mean_audio_rtf": 1.3751830255234543}
+  },
+  "candidates": [
+    {"name": "stage2-max-num-seqs-8", "cell": "c8_128", "completed": 128, "failed": 0, "improvement_pct": {"request_throughput": -3.50, "mean_ttft_ms": -4.14, "mean_e2el_ms": -3.55, "mean_audio_ttfp_ms": -12.63, "mean_audio_rtf": -3.37}, "decision": "reject"},
+    {"name": "stage2-max-num-seqs-7", "cell": "c8_128", "completed": 128, "failed": 0, "improvement_pct": {"request_throughput": -9.58, "mean_ttft_ms": -7.14, "mean_e2el_ms": -9.66, "mean_audio_ttfp_ms": -36.30, "mean_audio_rtf": -10.38}, "decision": "reject"},
+    {"name": "stage0-max-num-seqs-6", "cell": "c8_128", "completed": 128, "failed": 0, "improvement_pct": {"request_throughput": -12.16, "mean_ttft_ms": -6.47, "mean_e2el_ms": -13.01, "mean_audio_ttfp_ms": -40.44, "mean_audio_rtf": -13.57}, "decision": "reject"},
+    {"name": "token2wav-n-timesteps-4-c1-r1", "cell": "c1_32", "completed": 32, "failed": 0, "improvement_pct": {"request_throughput": -2.03, "mean_ttft_ms": -2.05, "mean_e2el_ms": -2.07, "mean_audio_ttfp_ms": 3.85, "mean_audio_rtf": -1.82}, "decision": "reject"},
+    {"name": "token2wav-n-timesteps-4-c1-r2", "cell": "c1_32", "completed": 32, "failed": 0, "improvement_pct": {"request_throughput": -25.66, "mean_ttft_ms": -26.97, "mean_e2el_ms": -34.52, "mean_audio_ttfp_ms": -29.43, "mean_audio_rtf": -32.96}, "decision": "reject"},
+    {"name": "token2wav-n-timesteps-4-c8-r1", "cell": "c8_128", "completed": 128, "failed": 0, "improvement_pct": {"request_throughput": -14.49, "mean_ttft_ms": -11.25, "mean_e2el_ms": -15.03, "mean_audio_ttfp_ms": -54.87, "mean_audio_rtf": -16.41}, "decision": "reject"},
+    {"name": "token2wav-n-timesteps-4-c8-r2", "cell": "c8_128", "completed": 128, "failed": 0, "improvement_pct": {"request_throughput": 19.60, "mean_ttft_ms": 1.36, "mean_e2el_ms": 16.62, "mean_audio_ttfp_ms": 2.61, "mean_audio_rtf": 17.24}, "decision": "reject_unstable"},
+    {"name": "token2wav-float16-c1", "cell": "c1_32", "completed": 32, "failed": 0, "improvement_pct": {"request_throughput": -0.14, "mean_ttft_ms": -2.55, "mean_e2el_ms": -0.13, "mean_audio_ttfp_ms": -1.57, "mean_audio_rtf": -0.10}, "decision": "reject"},
+    {"name": "token2wav-float16-c8", "cell": "c8_128", "completed": 128, "failed": 0, "improvement_pct": {"request_throughput": -5.38, "mean_ttft_ms": 7.79, "mean_e2el_ms": -5.89, "mean_audio_ttfp_ms": 10.58, "mean_audio_rtf": -3.56}, "decision": "reject_mixed"},
+    {"name": "codec-left-context-2", "cell": "c1_32", "completed": 32, "failed": 0, "improvement_pct": {"request_throughput": -46.52, "mean_ttft_ms": -65.73, "mean_e2el_ms": -87.01, "mean_audio_ttfp_ms": -63.17, "mean_audio_rtf": -96.59}, "decision": "reject"},
+    {"name": "codec-chunk-32", "cell": "c1_32", "completed": 32, "failed": 0, "improvement_pct": {"request_throughput": -2.57, "mean_ttft_ms": -1.60, "mean_e2el_ms": -2.64, "mean_audio_ttfp_ms": -9.45, "mean_audio_rtf": -2.49}, "decision": "reject"}
+  ],
+  "quality_gate": {"status": "not_run", "reason": "no candidate passed performance acceptance"},
+  "decision": "reject all candidates and keep source commit 0dced5d4"
+}

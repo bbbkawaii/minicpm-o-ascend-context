@@ -1,0 +1,23 @@
+experiment_id: 010-rejected-boundary-sweep
+date: 2026-08-11
+challenge_revision: 009b80d686fe
+baseline_source_config_commit: 0dced5d4
+hardware: one physical Ascend 910C card
+baseline_stack: Stage0/Stage1/Stage2 max_num_seqs=5/4/6, codec 25/3, token2wav steps=5
+performance_protocol:
+  suite: official Seed-TTS serving benchmark
+  cells: [c1/32, c8/128]
+  warmups: 3
+  oversample: false
+candidates:
+  - {name: stage2-max-num-seqs-8, status: rejected}
+  - {name: stage2-max-num-seqs-7, status: rejected}
+  - {name: stage0-max-num-seqs-6, status: rejected}
+  - {name: token2wav-n-timesteps-4, status: rejected_unstable}
+  - {name: token2wav-float16, status: rejected_mixed_tradeoff}
+  - {name: codec-left-context-2, status: rejected}
+  - {name: codec-chunk-32, status: rejected}
+quality_protocol:
+  status: not_run
+  reason: no candidate passed the performance gate
+status: rejected_all_candidates_keep_0dced5d4
