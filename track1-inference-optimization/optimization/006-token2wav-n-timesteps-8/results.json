@@ -1,0 +1,92 @@
+{
+  "experiment": "token2wav-n-timesteps-8",
+  "challenge_revision": "009b80d686fe",
+  "candidate_source_config_commit": "1c4e4c58",
+  "hardware": "one physical Ascend 910C card",
+  "baseline_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=9",
+  "candidate_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=8",
+  "fresh_paired_c1_32": {
+    "control": {
+      "completed": 32,
+      "failed": 0,
+      "request_throughput": 0.4452992409250088,
+      "mean_ttft_ms": 324.4196346786339,
+      "mean_e2el_ms": 2245.202939637238,
+      "mean_audio_ttfp_ms": 1048.7930399249308,
+      "mean_audio_rtf": 0.5232892413222139
+    },
+    "candidate": {
+      "completed": 32,
+      "failed": 0,
+      "request_throughput": 0.47491957951887065,
+      "mean_ttft_ms": 316.6757219005376,
+      "mean_e2el_ms": 2105.2193510404322,
+      "mean_audio_ttfp_ms": 991.7308906442486,
+      "mean_audio_rtf": 0.4909405980179714
+    },
+    "candidate_minus_control_pct": {
+      "request_throughput": 6.651782862,
+      "mean_ttft_ms": -2.387004962,
+      "mean_e2el_ms": -6.234785557,
+      "mean_audio_ttfp_ms": -5.440744466,
+      "mean_audio_rtf": -6.181790251
+    },
+    "input_lens_equal": true,
+    "output_lens_equal": true,
+    "total_audio_duration_equal": true
+  },
+  "candidate_c4_64": {
+    "completed": 64,
+    "failed": 0,
+    "request_throughput": 0.8320432918160412,
+    "mean_ttft_ms": 522.3053429217543,
+    "mean_e2el_ms": 4746.107179569663,
+    "mean_audio_ttfp_ms": 2110.7609091704944,
+    "mean_audio_rtf": 1.0617452801574645
+  },
+  "paired_c8_128": {
+    "control": {
+      "completed": 128,
+      "failed": 0,
+      "request_throughput": 0.8289798722919501,
+      "mean_ttft_ms": 588.7671301461523,
+      "mean_e2el_ms": 9536.559770029271,
+      "mean_audio_ttfp_ms": 3770.72056508041,
+      "mean_audio_rtf": 2.1221737514447154
+    },
+    "candidate": {
+      "completed": 128,
+      "failed": 0,
+      "request_throughput": 0.9264240937290863,
+      "mean_ttft_ms": 531.9579207280185,
+      "mean_e2el_ms": 8524.150811725121,
+      "mean_audio_ttfp_ms": 3302.7470597517095,
+      "mean_audio_rtf": 1.893266362143561
+    },
+    "candidate_minus_control_pct": {
+      "request_throughput": 11.754715005,
+      "mean_ttft_ms": -9.648841878,
+      "mean_e2el_ms": -10.616081509,
+      "mean_audio_ttfp_ms": -12.41071825,
+      "mean_audio_rtf": -10.78645842
+    },
+    "input_lens_equal": true,
+    "output_lens_equal": true
+  },
+  "quality_gate": {
+    "suite": "Seed-TTS English WER",
+    "requested_prompts": 2000,
+    "evaluated_unique_items": 1088,
+    "completed": 1088,
+    "failed": 0,
+    "mean_wer": 0.033803581434007926,
+    "median_wer": 0.0,
+    "max_mean_wer": 0.05,
+    "request_failures": 0,
+    "no_pcm": 0,
+    "asr_failures": 0,
+    "gate_pass": true
+  },
+  "official_composite_score": null,
+  "decision": "promote: fresh c1 and paired c8 improve all reported performance metrics, and the source Seed-TTS WER gate passes."
+}
