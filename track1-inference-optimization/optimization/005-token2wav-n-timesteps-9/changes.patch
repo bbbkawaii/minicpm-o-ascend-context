@@ -1,0 +1,12 @@
+diff --git a/vllm_omni/deploy/minicpmo_4_5.yaml b/vllm_omni/deploy/minicpmo_4_5.yaml
+index 4e053a5d..52166dca 100644
+--- a/vllm_omni/deploy/minicpmo_4_5.yaml
++++ b/vllm_omni/deploy/minicpmo_4_5.yaml
+@@ -14,6 +14,7 @@ connectors:
+       connector_get_max_wait: 300
+       codec_chunk_frames: 25
+       codec_left_context_frames: 3
++      token2wav_n_timesteps: 9
+
+ stages:
+   - stage_id: 0

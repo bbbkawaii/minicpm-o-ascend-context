@@ -1,0 +1,70 @@
+{
+  "experiment": "token2wav-n-timesteps-9",
+  "challenge_revision": "009b80d686fe",
+  "candidate_source_config_commit": "fa13e254",
+  "hardware": "one physical Ascend 910C card",
+  "baseline_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=10",
+  "candidate_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=9",
+  "candidate_matrix": {
+    "c1_32": {
+      "completed": 32,
+      "failed": 0,
+      "request_throughput": 0.5061879610059782,
+      "mean_ttft_ms": 333.2677416037768,
+      "mean_e2el_ms": 1975.1778504287358,
+      "mean_audio_ttfp_ms": 1036.0374897427391,
+      "mean_audio_rtf": 0.46370313144113073
+    },
+    "c4_64": {
+      "completed": 64,
+      "failed": 0,
+      "request_throughput": 0.7564523837045022,
+      "mean_ttft_ms": 476.95453121559694,
+      "mean_e2el_ms": 5238.346539335907,
+      "mean_audio_ttfp_ms": 2096.883082325803,
+      "mean_audio_rtf": 1.179489440519478
+    },
+    "c8_128": {
+      "completed": 128,
+      "failed": 0,
+      "request_throughput": 0.8457132618221325,
+      "mean_ttft_ms": 521.5718947802088,
+      "mean_e2el_ms": 9311.704250292678,
+      "mean_audio_ttfp_ms": 3236.6018650354818,
+      "mean_audio_rtf": 2.0318338481982066
+    }
+  },
+  "fresh_paired_c8_128_control": {
+    "completed": 128,
+    "failed": 0,
+    "request_throughput": 0.7807161450677504,
+    "mean_ttft_ms": 516.8066985788755,
+    "mean_e2el_ms": 10086.268680715875,
+    "mean_audio_ttfp_ms": 3460.307272092905,
+    "mean_audio_rtf": 2.2238847977032092
+  },
+  "paired_c8_candidate_minus_control_pct": {
+    "request_throughput": 8.325319921,
+    "mean_ttft_ms": 0.922046137,
+    "mean_e2el_ms": -7.679395175,
+    "mean_audio_ttfp_ms": -6.464900064,
+    "mean_audio_rtf": -8.635831753
+  },
+  "paired_c8_interpretation": "Positive is better only for throughput. Negative is better for the four latency/RTF metrics; TTFT is 0.922% slower.",
+  "quality_gate": {
+    "suite": "Seed-TTS English WER",
+    "requested_prompts": 2000,
+    "evaluated_unique_items": 1088,
+    "completed": 1088,
+    "failed": 0,
+    "mean_wer": 0.03257107721437136,
+    "median_wer": 0.0,
+    "max_mean_wer": 0.05,
+    "request_failures": 0,
+    "no_pcm": 0,
+    "asr_failures": 0,
+    "gate_pass": true
+  },
+  "official_composite_score": null,
+  "decision": "promote: fresh paired c8 performance improves four of five metrics; the relevant TTS WER gate passes. No unpublished composite score is inferred."
+}

@@ -2,23 +2,26 @@
 
 > 日期：2026-08-11（评审修复后 + 官方单卡 Seed-TTS 矩阵）
 > 依据：`docs/low-cost-model-optimization-plan.md`
-> 状态：M1–M6、C1 已实现，评审 10 项问题已修复；本地测试通过。官方单卡 Seed-TTS 基线与首个性能候选均已归档。
+> 状态：M1–M6、C1 已实现，评审 10 项问题已修复；本地测试通过。官方单卡 Seed-TTS 基线、三个性能候选与 TTS-Seed WER 门禁均已归档。
 
 ## 2026-08-11 官方单卡进展
 
 - 基线：官方 Seed-TTS c1/c4/c8 矩阵已在一张物理 Ascend 910C 上完成，见
   `reports/official-seed-tts-910c-20260810/`。
-- 当前最佳性能栈：Code2Wav Stage 2 的 `max_num_seqs=6`，再把 Thinker
-  Stage 0 从 4 提到 5，并显式捕获 Ascend 图形状 `[1, 2, 4, 5]`。新增
-  Stage0=5 的完整官方矩阵 224/224 成功、零失败；相对同机 Stage0=4 配对
-  对照，TTFT/音频 TTFP/RTF 三项中性几何汇总 +2.409%，五项等权汇总
-  +2.856%。c4 吞吐 +11.22%、E2E -10.42%、TTFP -10.84%、RTF -9.66%；
-  c8 五项均向好。见 `optimization/004-stage0-max-num-seqs-5/` 和
-  `reports/stage0-maxseq5-910c-20260811/`。
+- 当前最佳性能栈：Code2Wav Stage 2 `max_num_seqs=6` + Thinker Stage 0
+  `max_num_seqs=5`（Ascend 图形状 `[1, 2, 4, 5]`）+ Code2Wav
+  `token2wav_n_timesteps=9`。最新源码提交为 `fa13e254`；九步相对十步的
+  同机紧邻 c8/128 配对结果为：吞吐 +8.33%、E2E -7.68%、音频 TTFP
+  -6.46%、RTF -8.64%，TTFT +0.92% 变慢。完整候选矩阵 224/224 成功、零
+  失败；详见 `optimization/005-token2wav-n-timesteps-9/` 和
+  `reports/token2wav-steps9-910c-20260811/`。
+- TTS-Seed 英文 WER 门禁已通过：1,088/1,088 条完成、均值 `0.032571`
+  <= 源码阈值 `0.05`，请求/PCM/ASR 失败均为 0。没有发布的官方综合加权分，
+  因此只以原始配对性能结果和明确的 WER 门禁作接受依据。
 - 已否决：首块/稳定 codec 分块 10/25 与 10/32。前者在 c8 吞吐回退
   19.7%，后者 c8 TTFP 回退 8.4%。原始证据已保留在实验 002/003。
-- 当前仍缺官方 Video-MME、Daily-Omni 与 TTS-Seed ASV/WER 正确性门禁；
-  性能结果不能替代这些门禁。
+- 当前仍缺重新运行的官方 Video-MME 与 Daily-Omni 最终验证；性能结果不能
+  替代这些门禁。
 
 ## 评审修复记录（10/10 完成）
 
@@ -70,13 +73,15 @@ bash -n baseline/*.sh                       # shell 语法通过
 - [x] **早期 E1 全阶段 max_num_seqs 实验** → 两卡文本条件下基线(4)为
   Pareto 最优（见 `reports/e1-maxnumseqs-20260807.md`）；该结论不再用于排除
   官方单卡音频的 Stage2 独立调参，Stage2=6 已通过正式矩阵。
-- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6 + Stage0=5** → 当前最佳性能
-  候选；新增 Stage0=5 的配对矩阵和原始结果见
-  `reports/stage0-maxseq5-910c-20260811/`。
+- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6 + Stage0=5 + token2wav=9**
+  → 当前最佳性能候选；最新 c8 同机配对与原始结果见
+  `reports/token2wav-steps9-910c-20260811/`。
+- [x] **TTS-Seed 英文 WER 门禁** → `0.032571 <= 0.05`，1,088/1,088
+  完成、零失败；见 `optimization/005-token2wav-n-timesteps-9/`。
 - [x] **E2 batched_tokens 实验** → 对 conc-8 TTFT 悬崖无影响,保留基线 8192;悬崖非批处理容量问题(见 `reports/e2-batchedtokens-20260807.md`)
 - [x] **E3 显存预算实验** → B3(0.90/0.58/0.32)候选(文本 +3.5% 吞吐/-9% TTFT),需音频复验;B1 否决、B2/B4 噪声;悬崖同样非显存问题(见 `reports/e3-memory-20260807.md`)
-- [ ] **B3 音频复验** + C1/C2 正确性门禁(若通过则采用 B3)
+- [ ] **B3 音频复验** + C1/剩余正确性门禁(若通过则采用 B3)
 - [ ] **P1 分阶段 timeline**(E2+E3 均指向:conc-8 悬崖是 scheduler/背压问题,需 profiler 定位)
 - [ ] M6 audio 矩阵(conc 1/2/4,需 ~1h 算力)
 - [ ] C1 视频 fixture 填充真实 URL + SHA256 + 许可证
-- [ ] C2 正式效果集（Daily-Omni / TTS-Seed / Video-MME）适配
+- [ ] C2 正式效果集：重新运行 Daily-Omni / Video-MME 最终验证
