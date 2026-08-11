@@ -10,18 +10,21 @@
   `reports/official-seed-tts-910c-20260810/`。
 - 当前最佳性能栈：Code2Wav Stage 2 `max_num_seqs=6` + Thinker Stage 0
   `max_num_seqs=5`（Ascend 图形状 `[1, 2, 4, 5]`）+ Code2Wav
-  `token2wav_n_timesteps=8`。最新源码提交为 `1c4e4c58`。八步相对九步的
-  冷启动 c1/32 配对结果为：吞吐 +6.65%、TTFT -2.39%、E2E -6.23%、
-  音频 TTFP -5.44%、RTF -6.18%；同机 c8/128 配对为：吞吐 +11.75%、
-  TTFT -9.65%、E2E -10.62%、音频 TTFP -12.41%、RTF -10.79%。两组
-  配对均全部成功且输入/输出长度一致；详见
-  `optimization/006-token2wav-n-timesteps-8/` 和
-  `reports/token2wav-steps8-910c-20260811/`。
-- TTS-Seed 英文 WER 门禁已通过：1,088/1,088 条完成、均值 `0.033804`
+  `token2wav_n_timesteps=7`。最新源码提交为 `e3266c5a`。七步相对八步的
+  c1/32 对比为：吞吐 +6.07%、E2E -5.72%、音频 TTFP -2.57%、RTF
+  -5.65%，TTFT +0.83% 变慢；c8/128 对比为：吞吐 +11.31%、TTFT
+  -2.26%、E2E -10.50%、音频 TTFP -5.71%、RTF -10.46%。两组均全部
+  成功且输入/输出长度一致；详见
+  `optimization/007-token2wav-n-timesteps-7/` 和
+  `reports/token2wav-steps7-910c-20260811/`。
+- TTS-Seed 英文 WER 门禁已通过：1,088/1,088 条完成、均值 `0.033366`
   <= 源码阈值 `0.05`，请求/PCM/ASR 失败均为 0。没有发布的官方综合加权分，
   因此只以原始配对性能结果和明确的 WER 门禁作接受依据。
 - 已否决：首块/稳定 codec 分块 10/25 与 10/32。前者在 c8 吞吐回退
   19.7%，后者 c8 TTFP 回退 8.4%。原始证据已保留在实验 002/003。
+- 已否决：Talker Stage 1 `max_num_seqs=5`。c8 吞吐 -0.21%、E2E
+  +0.21%、音频 TTFP +0.87%、RTF +0.08%；保留 Stage 1=4。证据见
+  `reports/stage1-max-num-seqs-5-910c-20260811/`。
 - 当前仍缺重新运行的官方 Video-MME 与 Daily-Omni 最终验证；性能结果不能
   替代这些门禁。
 
@@ -75,11 +78,11 @@ bash -n baseline/*.sh                       # shell 语法通过
 - [x] **早期 E1 全阶段 max_num_seqs 实验** → 两卡文本条件下基线(4)为
   Pareto 最优（见 `reports/e1-maxnumseqs-20260807.md`）；该结论不再用于排除
   官方单卡音频的 Stage2 独立调参，Stage2=6 已通过正式矩阵。
-- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6 + Stage0=5 + token2wav=8**
+- [x] **官方单卡 Seed-TTS 矩阵 + Stage2=6 + Stage0=5 + token2wav=7**
   → 当前最佳性能候选；最新 c1/c8 配对与原始结果见
-  `reports/token2wav-steps8-910c-20260811/`。
-- [x] **TTS-Seed 英文 WER 门禁** → `0.033804 <= 0.05`，1,088/1,088
-  完成、零失败；见 `optimization/006-token2wav-n-timesteps-8/`。
+  `reports/token2wav-steps7-910c-20260811/`。
+- [x] **TTS-Seed 英文 WER 门禁** → `0.033366 <= 0.05`，1,088/1,088
+  完成、零失败；见 `optimization/007-token2wav-n-timesteps-7/`。
 - [x] **E2 batched_tokens 实验** → 对 conc-8 TTFT 悬崖无影响,保留基线 8192;悬崖非批处理容量问题(见 `reports/e2-batchedtokens-20260807.md`)
 - [x] **E3 显存预算实验** → B3(0.90/0.58/0.32)候选(文本 +3.5% 吞吐/-9% TTFT),需音频复验;B1 否决、B2/B4 噪声;悬崖同样非显存问题(见 `reports/e3-memory-20260807.md`)
 - [ ] **B3 音频复验** + C1/剩余正确性门禁(若通过则采用 B3)

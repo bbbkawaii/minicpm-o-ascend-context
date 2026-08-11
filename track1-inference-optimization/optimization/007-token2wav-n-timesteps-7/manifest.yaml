@@ -1,0 +1,28 @@
+experiment_id: 007-token2wav-n-timesteps-7
+date: 2026-08-11
+challenge_revision: 009b80d686fe
+previous_promoted_source_config_commit: 1c4e4c58
+candidate_source_config_commit: e3266c5a
+hardware: one physical Ascend 910C card
+baseline_stack: Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=8
+candidate:
+  path: connectors.connector_of_shared_memory.extra.token2wav_n_timesteps
+  baseline_value: 8
+  candidate_value: 7
+  scope: MiniCPM-o 4.5 Code2Wav conditional-flow solver
+performance_protocol:
+  suite: official Seed-TTS serving benchmark
+  candidate_cells: [c1/32, c4/64, c8/128]
+  matched_controls: [c1/32, c8/128]
+quality_protocol:
+  suite: source Seed-TTS English WER logic
+  requested_prompts: 2000
+  evaluated_unique_items: 1088
+  max_concurrency: 4
+  oversample: false
+  mean_wer: 0.033365929318966106
+  mean_wer_threshold: 0.05
+  request_failures: 0
+  no_pcm: 0
+  asr_failures: 0
+status: promoted_to_main_after_c1_c8_performance_and_tts_wer_gate

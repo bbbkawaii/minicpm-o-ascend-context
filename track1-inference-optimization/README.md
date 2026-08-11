@@ -88,7 +88,7 @@ bash baseline/run_gate0.sh
 - [x] 910C 双卡文本与语音早期基线
 - [ ] Benchmark 评测（TTS-Seed WER 已通过；Daily-Omni / Video-MME 待最终复验）
 - [ ] Demo 对接
-- [x] 单卡性能候选（Stage2=6、Stage0=5、Code2Wav 八步；见 `optimization/006-token2wav-n-timesteps-8/`）
+- [x] 单卡性能候选（Stage2=6、Stage0=5、Code2Wav 七步；见 `optimization/007-token2wav-n-timesteps-7/`）
 - [ ] PR 提交至 minicpm-challenge 分支
 - [ ] 最终材料打包
 

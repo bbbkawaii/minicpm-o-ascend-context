@@ -1,0 +1,92 @@
+{
+  "experiment": "token2wav-n-timesteps-7",
+  "challenge_revision": "009b80d686fe",
+  "candidate_source_config_commit": "e3266c5a",
+  "hardware": "one physical Ascend 910C card",
+  "baseline_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=8",
+  "candidate_stack": "Stage2 max_num_seqs=6, Stage0 max_num_seqs=5, token2wav_n_timesteps=7",
+  "matched_c1_32": {
+    "control": {
+      "completed": 32,
+      "failed": 0,
+      "request_throughput": 0.47491957951887065,
+      "mean_ttft_ms": 316.6757219005376,
+      "mean_e2el_ms": 2105.2193510404322,
+      "mean_audio_ttfp_ms": 991.7308906442486,
+      "mean_audio_rtf": 0.4909405980179714
+    },
+    "candidate": {
+      "completed": 32,
+      "failed": 0,
+      "request_throughput": 0.5037472974349504,
+      "mean_ttft_ms": 319.3097059556749,
+      "mean_e2el_ms": 1984.7464557096828,
+      "mean_audio_ttfp_ms": 966.2389362929389,
+      "mean_audio_rtf": 0.4631945800772897
+    },
+    "candidate_minus_control_pct": {
+      "request_throughput": 6.070020938,
+      "mean_ttft_ms": 0.831760654,
+      "mean_e2el_ms": -5.722581605,
+      "mean_audio_ttfp_ms": -2.570450774,
+      "mean_audio_rtf": -5.651603891
+    },
+    "input_lens_equal": true,
+    "output_lens_equal": true,
+    "total_audio_duration_equal": true
+  },
+  "candidate_c4_64": {
+    "completed": 64,
+    "failed": 0,
+    "request_throughput": 0.9600938619987467,
+    "mean_ttft_ms": 478.4047087887302,
+    "mean_e2el_ms": 4100.32135254005,
+    "mean_audio_ttfp_ms": 1841.411952249473,
+    "mean_audio_rtf": 0.9281085300034417
+  },
+  "matched_c8_128": {
+    "control": {
+      "completed": 128,
+      "failed": 0,
+      "request_throughput": 0.9264240937290863,
+      "mean_ttft_ms": 531.9579207280185,
+      "mean_e2el_ms": 8524.150811725121,
+      "mean_audio_ttfp_ms": 3302.7470597517095,
+      "mean_audio_rtf": 1.893266362143561
+    },
+    "candidate": {
+      "completed": 128,
+      "failed": 0,
+      "request_throughput": 1.0311626033537895,
+      "mean_ttft_ms": 519.9109103268711,
+      "mean_e2el_ms": 7629.285002200049,
+      "mean_audio_ttfp_ms": 3114.3035764835076,
+      "mean_audio_rtf": 1.6952971581374592
+    },
+    "candidate_minus_control_pct": {
+      "request_throughput": 11.305676346,
+      "mean_ttft_ms": -2.264654765,
+      "mean_e2el_ms": -10.498005365,
+      "mean_audio_ttfp_ms": -5.705658952,
+      "mean_audio_rtf": -10.456489798
+    },
+    "input_lens_equal": true,
+    "output_lens_equal": true
+  },
+  "quality_gate": {
+    "suite": "Seed-TTS English WER",
+    "requested_prompts": 2000,
+    "evaluated_unique_items": 1088,
+    "completed": 1088,
+    "failed": 0,
+    "mean_wer": 0.033365929318966106,
+    "median_wer": 0.0,
+    "max_mean_wer": 0.05,
+    "request_failures": 0,
+    "no_pcm": 0,
+    "asr_failures": 0,
+    "gate_pass": true
+  },
+  "official_composite_score": null,
+  "decision": "promote: c8 improves all metrics, c1 improves throughput/E2E/TTFP/RTF with a 0.83% TTFT trade-off, and the full Seed-TTS WER gate passes."
+}
