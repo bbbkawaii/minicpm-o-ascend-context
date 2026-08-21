@@ -3,15 +3,14 @@
 > 更新时间：2026-08-21（Asia/Shanghai）  
 > 用途：集中记录比赛规则、目标、代码谱系、运行环境、全部已知实验、质量与性能结果、失败方向、证据强度、研究判断和未决问题。  
 > 当前主任务：Track 1 / vLLM-Omni / MiniCPM-o 4.5 / 单张物理 Ascend 910C 推理优化。  
-> 内容边界：本文是项目完整信息集合，不以任务交接为组织方式；任何结论都应能追溯到规则、提交、实验制度或原始结果。
+> 内容边界：本文按事实、证据和实验谱系组织；任何结论都应能追溯到规则、提交、实验制度或原始结果。
 
 ---
 
 ## 0. 核心事实与当前状态
 
 1. **当前真正的最终候选源码不在本地协调仓库的 `main` 中。**
-   - 本地协调/实验仓库：`/Users/sylva/Documents/ChatGPT/昇腾竞赛`
-   - 本地远端：`https://github.com/airbate/minicpm-o-ascend-competition.git`
+   - 历史协调/实验仓库：`https://github.com/airbate/minicpm-o-ascend-competition`
    - 本地 `main` 当前提交：`fbb75e0 docs(track1): record rejected 910c boundary sweep`
    - 这个仓库保存 2026-08-07 至 2026-08-11 的基线、实验 001–010、测试工具、报告和拒绝记录。
    - 2026-08-20 至 2026-08-21 的最终候选直接在远端 910C 上基于官方 vLLM-Omni 分支开发，尚未回填到这个协调仓库。
@@ -79,9 +78,9 @@
 
 Track 2 的功能开发、依赖或提交内容不应混入 Track 1 PR。相关架构边界见：
 
-- [`../CONTEXT-MAP.md`](../CONTEXT-MAP.md)
-- [`adr/0001-independent-track-projects.md`](adr/0001-independent-track-projects.md)
-- [`../track1-inference-optimization/CONTEXT.md`](../track1-inference-optimization/CONTEXT.md)
+- [项目 Context Map](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/CONTEXT-MAP.md)
+- [独立赛道 ADR](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/docs/adr/0001-independent-track-projects.md)
+- [Track 1 Context](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/CONTEXT.md)
 
 ### 1.2 比赛目标
 
@@ -178,7 +177,7 @@ flowchart TD
 | 复现/评审与结果发布 | 2026-09-15 | 官方首页时间线 |
 | 奖励时间 | 2026-10-01 | 官方首页时间线 |
 
-本地 [`competition-rules.md`](competition-rules.md) 的部分日期早于当前官方更新，只能作为历史材料，不能覆盖官方页面和群内最新通知。
+[历史规则摘要](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/docs/competition-rules.md) 的部分日期早于当前官方更新，只能作为历史材料，不能覆盖官方页面和群内最新通知。
 
 ### 3.3 质量硬门
 
@@ -279,10 +278,12 @@ flowchart TD
 
 ## 4. 代码、机器和数据拓扑
 
-### 4.1 本地协调仓库
+### 4.1 历史协调与实验仓库
+
+公开仓库：<https://github.com/airbate/minicpm-o-ascend-competition>
 
 ```text
-/Users/sylva/Documents/ChatGPT/昇腾竞赛
+minicpm-o-ascend-competition
 ├── docs/                              # 总规则、ADR、本 Context
 ├── track1-inference-optimization/
 │   ├── baseline/                      # benchmark/资源采集/质量门脚本
@@ -295,14 +296,14 @@ flowchart TD
 └── track2-guardian-o/                 # 独立赛道，非当前范围
 ```
 
-本地 `main` 状态（写本文前）：
+历史协调仓库 `main` 状态（写本文前）：
 
 - `HEAD = origin/main = fbb75e0`
-- 工作树原本干净；本文是新增的未提交文档。
-- 本地正确测试入口：
+- 当时工作树干净。
+- clone 该公开仓库后的正确测试入口：
 
 ```bash
-cd /Users/sylva/Documents/ChatGPT/昇腾竞赛/track1-inference-optimization
+cd minicpm-o-ascend-competition/track1-inference-optimization
 python3 -m unittest discover -s tests -v
 ```
 
@@ -446,8 +447,8 @@ qa.official-ec5b57d30a297d62301e97c0bf07b025d222251d.json
 
 证据：
 
-- [`../track1-inference-optimization/reports/baseline-910c-formal-20260807.md`](../track1-inference-optimization/reports/baseline-910c-formal-20260807.md)
-- [`../track1-inference-optimization/reports/audio_baseline_910c_20260807.json`](../track1-inference-optimization/reports/audio_baseline_910c_20260807.json)
+- [双卡正式基线报告](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/baseline-910c-formal-20260807.md)
+- [双卡音频基线 JSON](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/audio_baseline_910c_20260807.json)
 
 ### 6.2 M6 文本并发矩阵
 
@@ -470,7 +471,7 @@ Finding：双卡文本吞吐的 knee 在 c4；c8 的问题不是吞吐完全崩�
 
 结论：`max_num_seqs=4` 是早期双卡文本的合理默认；当时未验证大于 4、音频和官方单卡。
 
-证据：[`../track1-inference-optimization/reports/e1-maxnumseqs-20260807.md`](../track1-inference-optimization/reports/e1-maxnumseqs-20260807.md)
+证据：[E1 max_num_seqs 报告](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/e1-maxnumseqs-20260807.md)
 
 ### 6.4 E2：Thinker `max_num_batched_tokens`
 
@@ -480,7 +481,7 @@ Finding：双卡文本吞吐的 knee 在 c4；c8 的问题不是吞吐完全崩�
 - 8192 保留为中间值。
 - 结论：瓶颈不在这个单一批 token 上限；继续横扫该参数价值低。
 
-证据：[`../track1-inference-optimization/reports/e2-batchedtokens-20260807.md`](../track1-inference-optimization/reports/e2-batchedtokens-20260807.md)
+证据：[E2 batched_tokens 报告](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/e2-batchedtokens-20260807.md)
 
 ### 6.5 E3：三阶段内存预算
 
@@ -493,7 +494,7 @@ Finding：双卡文本吞吐的 knee 在 c4；c8 的问题不是吞吐完全崩�
 
 B3 从未在官方单卡音频协议下验证，不能自动移植到最终候选。
 
-证据：[`../track1-inference-optimization/reports/e3-memory-20260807.md`](../track1-inference-optimization/reports/e3-memory-20260807.md)
+证据：[E3 memory budget 报告](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/e3-memory-20260807.md)
 
 ### 6.6 H1：双卡文本 `max_num_seqs=8`
 
@@ -503,7 +504,7 @@ B3 从未在官方单卡音频协议下验证，不能自动移植到最终候�
 
 Finding：这证明早期 c8 文本 cliff 与调度并发上限强相关；它**不证明**官方单卡音频 Stage2=8 有效。后续正式单卡 Stage2=8 已被实验否决。
 
-证据：[`../track1-inference-optimization/reports/h1-maxnumseqs-20260808.md`](../track1-inference-optimization/reports/h1-maxnumseqs-20260808.md)
+证据：[H1 max_num_seqs 报告](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/h1-maxnumseqs-20260808.md)
 
 ### 6.7 Benchmark 工具建设
 
@@ -558,7 +559,7 @@ Finding：这证明早期 c8 文本 cliff 与调度并发上限强相关；它**
 
 决策：提升高并发显著，接受 Stage2=6；记录 TTFT 轻微回退。
 
-证据：[`../track1-inference-optimization/optimization/001-stage2-max-num-seqs-6/`](../track1-inference-optimization/optimization/001-stage2-max-num-seqs-6/)
+证据：[实验 001](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/001-stage2-max-num-seqs-6)
 
 ### 7.4 实验 002：initial codec 10 / steady 25
 
@@ -569,7 +570,7 @@ Finding：这证明早期 c8 文本 cliff 与调度并发上限强相关；它**
 
 决策：拒绝激活；保留通用实现但默认关闭。原因是 c8 灾难性回退。
 
-证据：[`../track1-inference-optimization/optimization/002-initial-codec-chunk-10/`](../track1-inference-optimization/optimization/002-initial-codec-chunk-10/)
+证据：[实验 002](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/002-initial-codec-chunk-10)
 
 ### 7.5 实验 003：initial codec 10 / steady 32
 
@@ -582,7 +583,7 @@ c8：
 
 决策：拒绝。
 
-证据：[`../track1-inference-optimization/optimization/003-initial-codec10-steady32/`](../track1-inference-optimization/optimization/003-initial-codec10-steady32/)
+证据：[实验 003](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/003-initial-codec10-steady32)
 
 ### 7.6 实验 004：Stage0 `max_num_seqs=5`
 
@@ -596,7 +597,7 @@ c8：
 
 决策：接受 Stage0=5。
 
-证据：[`../track1-inference-optimization/optimization/004-stage0-max-num-seqs-5/`](../track1-inference-optimization/optimization/004-stage0-max-num-seqs-5/)
+证据：[实验 004](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/004-stage0-max-num-seqs-5)
 
 ### 7.7 Stage1 `max_num_seqs=5` 探针
 
@@ -624,11 +625,11 @@ c8：
 
 证据：
 
-- [`../track1-inference-optimization/optimization/005-token2wav-n-timesteps-9/`](../track1-inference-optimization/optimization/005-token2wav-n-timesteps-9/)
-- [`../track1-inference-optimization/optimization/006-token2wav-n-timesteps-8/`](../track1-inference-optimization/optimization/006-token2wav-n-timesteps-8/)
-- [`../track1-inference-optimization/optimization/007-token2wav-n-timesteps-7/`](../track1-inference-optimization/optimization/007-token2wav-n-timesteps-7/)
-- [`../track1-inference-optimization/optimization/008-token2wav-n-timesteps-6/`](../track1-inference-optimization/optimization/008-token2wav-n-timesteps-6/)
-- [`../track1-inference-optimization/optimization/009-token2wav-n-timesteps-5/`](../track1-inference-optimization/optimization/009-token2wav-n-timesteps-5/)
+- [实验 005：9 steps](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/005-token2wav-n-timesteps-9)
+- [实验 006：8 steps](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/006-token2wav-n-timesteps-8)
+- [实验 007：7 steps](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/007-token2wav-n-timesteps-7)
+- [实验 008：6 steps](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/008-token2wav-n-timesteps-6)
+- [实验 009：5 steps](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/009-token2wav-n-timesteps-5)
 
 ### 7.9 实验 010：边界与低精度 sweep
 
@@ -693,8 +694,8 @@ c8：Throughput -12.16%、TTFT -6.47%、E2E -13.01%、TTFP -40.44%、RTF -13.57%
 
 证据：
 
-- [`../track1-inference-optimization/optimization/010-rejected-boundary-sweep/`](../track1-inference-optimization/optimization/010-rejected-boundary-sweep/)
-- [`../track1-inference-optimization/reports/rejected-sweep-910c-20260811/`](../track1-inference-optimization/reports/rejected-sweep-910c-20260811/)
+- [实验 010：拒绝边界 sweep](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/010-rejected-boundary-sweep)
+- [实验 010 原始报告目录](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/reports/rejected-sweep-910c-20260811)
 
 ---
 
@@ -1341,7 +1342,7 @@ git diff --check 4105c717fe9fdab70285f4d23036768b7814ba78..4908de0044e3d08044c86
 ### 16.3 本地协调仓库测试
 
 ```bash
-cd /Users/sylva/Documents/ChatGPT/昇腾竞赛/track1-inference-optimization
+cd minicpm-o-ascend-competition/track1-inference-optimization
 python3 -m unittest discover -s tests -v
 ```
 
@@ -1377,7 +1378,7 @@ Seed WER, ASV, request/PCM/ASR failures
 
 | ID | 证据 | 结论强度 |
 |---|---|---|
-| E-001 | 本地 Git：`main/origin/main=fbb75e0` | 已核验当前 |
+| E-001 | 历史协调仓库 Git：`main/origin/main=fbb75e0` | 已核验当前 |
 | E-002 | fork `codex/minicpm-challenge-20260820=4908de00` | 已核验当前 |
 | E-003 | 上游 PR 查询为空 | 已核验当前 |
 | E-004 | 官方比赛页面与 RFC #5075 | 当前规则框架 |
@@ -1421,36 +1422,36 @@ Seed WER, ASV, request/PCM/ASR failures
 
 ---
 
-## 18. 现有本地文档索引
+## 18. 公开历史证据索引
 
 规则与执行：
 
-- [`competition-rules.md`](competition-rules.md)
-- [`../track1-inference-optimization/docs/competition-research.md`](../track1-inference-optimization/docs/competition-research.md)
-- [`../track1-inference-optimization/docs/execution-plan.md`](../track1-inference-optimization/docs/execution-plan.md)
-- [`../track1-inference-optimization/docs/track1-execution-manual.md`](../track1-inference-optimization/docs/track1-execution-manual.md)
-- [`../track1-inference-optimization/docs/low-cost-model-optimization-plan.md`](../track1-inference-optimization/docs/low-cost-model-optimization-plan.md)
-- [`../track1-inference-optimization/docs/optimization-implementation-status.md`](../track1-inference-optimization/docs/optimization-implementation-status.md)
+- [历史比赛规则摘要](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/docs/competition-rules.md)
+- [比赛调研](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/docs/competition-research.md)
+- [执行计划](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/docs/execution-plan.md)
+- [Track 1 执行手册](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/docs/track1-execution-manual.md)
+- [低成本模型优化计划](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/docs/low-cost-model-optimization-plan.md)
+- [优化实现状态](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/docs/optimization-implementation-status.md)
 
 基线和实验：
 
-- [`../track1-inference-optimization/baseline/README.md`](../track1-inference-optimization/baseline/README.md)
-- [`../track1-inference-optimization/optimization/README.md`](../track1-inference-optimization/optimization/README.md)
-- [`../track1-inference-optimization/reports/baseline-910c-formal-20260807.md`](../track1-inference-optimization/reports/baseline-910c-formal-20260807.md)
-- [`../track1-inference-optimization/reports/e1-maxnumseqs-20260807.md`](../track1-inference-optimization/reports/e1-maxnumseqs-20260807.md)
-- [`../track1-inference-optimization/reports/e2-batchedtokens-20260807.md`](../track1-inference-optimization/reports/e2-batchedtokens-20260807.md)
-- [`../track1-inference-optimization/reports/e3-memory-20260807.md`](../track1-inference-optimization/reports/e3-memory-20260807.md)
-- [`../track1-inference-optimization/reports/h1-maxnumseqs-20260808.md`](../track1-inference-optimization/reports/h1-maxnumseqs-20260808.md)
-- [`../track1-inference-optimization/optimization/001-stage2-max-num-seqs-6/`](../track1-inference-optimization/optimization/001-stage2-max-num-seqs-6/)
-- [`../track1-inference-optimization/optimization/002-initial-codec-chunk-10/`](../track1-inference-optimization/optimization/002-initial-codec-chunk-10/)
-- [`../track1-inference-optimization/optimization/003-initial-codec10-steady32/`](../track1-inference-optimization/optimization/003-initial-codec10-steady32/)
-- [`../track1-inference-optimization/optimization/004-stage0-max-num-seqs-5/`](../track1-inference-optimization/optimization/004-stage0-max-num-seqs-5/)
-- [`../track1-inference-optimization/optimization/005-token2wav-n-timesteps-9/`](../track1-inference-optimization/optimization/005-token2wav-n-timesteps-9/)
-- [`../track1-inference-optimization/optimization/006-token2wav-n-timesteps-8/`](../track1-inference-optimization/optimization/006-token2wav-n-timesteps-8/)
-- [`../track1-inference-optimization/optimization/007-token2wav-n-timesteps-7/`](../track1-inference-optimization/optimization/007-token2wav-n-timesteps-7/)
-- [`../track1-inference-optimization/optimization/008-token2wav-n-timesteps-6/`](../track1-inference-optimization/optimization/008-token2wav-n-timesteps-6/)
-- [`../track1-inference-optimization/optimization/009-token2wav-n-timesteps-5/`](../track1-inference-optimization/optimization/009-token2wav-n-timesteps-5/)
-- [`../track1-inference-optimization/optimization/010-rejected-boundary-sweep/`](../track1-inference-optimization/optimization/010-rejected-boundary-sweep/)
+- [Benchmark 工具说明](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/baseline/README.md)
+- [实验账本说明](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/optimization/README.md)
+- [双卡正式基线](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/baseline-910c-formal-20260807.md)
+- [E1 max_num_seqs](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/e1-maxnumseqs-20260807.md)
+- [E2 batched_tokens](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/e2-batchedtokens-20260807.md)
+- [E3 memory budget](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/e3-memory-20260807.md)
+- [H1 max_num_seqs](https://github.com/airbate/minicpm-o-ascend-competition/blob/main/track1-inference-optimization/reports/h1-maxnumseqs-20260808.md)
+- [实验 001](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/001-stage2-max-num-seqs-6)
+- [实验 002](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/002-initial-codec-chunk-10)
+- [实验 003](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/003-initial-codec10-steady32)
+- [实验 004](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/004-stage0-max-num-seqs-5)
+- [实验 005](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/005-token2wav-n-timesteps-9)
+- [实验 006](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/006-token2wav-n-timesteps-8)
+- [实验 007](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/007-token2wav-n-timesteps-7)
+- [实验 008](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/008-token2wav-n-timesteps-6)
+- [实验 009](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/009-token2wav-n-timesteps-5)
+- [实验 010](https://github.com/airbate/minicpm-o-ascend-competition/tree/main/track1-inference-optimization/optimization/010-rejected-boundary-sweep)
 
 外部当前资源：
 
