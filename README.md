@@ -5,6 +5,12 @@
 > 当前主任务：Track 1 / vLLM-Omni / MiniCPM-o 4.5 / 单张物理 Ascend 910C 推理优化。  
 > 内容边界：本文按事实、证据和实验谱系组织；任何结论都应能追溯到规则、提交、实验制度或原始结果。
 
+本仓库的数据组织：
+
+- `main`：当前这份完整信息汇总，是整个项目的统一入口。
+- `historical-evidence`：487 个历史源码、配置、原始 JSON、stdout、资源采集结果、实验 001–010 和报告文件。
+- 最新 vLLM-Omni 候选源码：[`bbbkawaii/vllm-omni@4908de00`](https://github.com/bbbkawaii/vllm-omni/tree/codex/minicpm-challenge-20260820)。
+
 ---
 
 ## 0. 核心事实与当前状态
